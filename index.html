@@ -853,7 +853,7 @@
       <div class="day-ring-info">
         <div class="day-ring-status" id="ringStatus">😴 Still sleeping</div>
         <div class="day-ring-remaining" id="ringRemaining">Calculating…</div>
-        <div class="day-ring-hours">8:00 AM – 12:00 AM</div>
+        <div class="day-ring-hours">10:00 AM – 1:00 AM</div>
       </div>
     </div>
   </div>
@@ -917,8 +917,8 @@
 <script>
   // ── Constants ──
   const ANTHROPIC_API_KEY = '';
-  const WAKE_HOUR = 8;
-  const SLEEP_HOUR = 24;
+  const WAKE_HOUR = 10;
+  const SLEEP_HOUR = 25;
   const CIRCUMFERENCE = 2 * Math.PI * 52; // ~326.726
 
   // ── Storage helpers ──
@@ -1051,7 +1051,9 @@
 
   function updateDayBar() {
     const now = new Date();
-    const hours = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+    let hours = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+    // Past-midnight times (e.g. 12:30 AM) must be treated as hour 24.5, not 0.5
+    if (SLEEP_HOUR > 24 && hours < SLEEP_HOUR - 24) hours += 24;
     const ringFill = document.getElementById('ringFill');
     const ringPct = document.getElementById('ringPct');
     const ringPhase = document.getElementById('ringPhase');
