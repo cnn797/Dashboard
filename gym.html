@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050506">
 <title>Gym — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="topbar.js" defer></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -315,6 +316,14 @@
   const WT_KEY = 'po_coach_weights';
   const UNIT   = 'kg';
 
+  // ── Supabase sync ─────────────────────────────────────────────
+  const SUPABASE_URL = 'https://yqbptmylteamhtrgilsr.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxYnB0bXlsdGVhbWh0cmdpbHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDg3MjcsImV4cCI6MjA5NDYyNDcyN30.BOzkHgRHMA3EK0ZVKiqTqxBdQhaod8nGGudQFMu3Z1s';
+  const APP_KEY      = 'gym';
+  const _sb          = typeof supabase !== 'undefined'
+    ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+  let _lastJson = null;
+
   // ── Helpers ──────────────────────────────────────────────────
   const $ = id => document.getElementById(id);
 
@@ -350,6 +359,41 @@
     return p;
   }
 
+  async function _push() {
+    if (!_sb) return;
+    const json = JSON.stringify(entries);
+    if (json === _lastJson) return;
+    _lastJson = json;
+    await _sb.from('app_state').upsert(
+      { key: APP_KEY, data: { weights: entries }, updated_at: new Date().toISOString() },
+      { onConflict: 'key' }
+    );
+  }
+
+  async function _pull() {
+    if (!_sb) return;
+    const { data, error } = await _sb.from('app_state').select('data').eq('key', APP_KEY).single();
+    if (error || !data) return;
+    const remote = data.data?.weights;
+    if (!Array.isArray(remote)) return;
+    // Remote is authoritative; preserve any local-only (offline) entries
+    const map = new Map();
+    entries.forEach(e => map.set(e.dateKey, e));
+    remote.forEach(e => map.set(e.dateKey, e));
+    entries = [...map.values()].sort((a, b) => a.dateKey.localeCompare(b.dateKey));
+    save(entries);
+    _lastJson = JSON.stringify(entries);
+  }
+
+  function _subscribe() {
+    if (!_sb) return;
+    _sb.channel('gym_state')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'app_state', filter: `key=eq.${APP_KEY}` },
+        async () => { await _pull(); render(); })
+      .subscribe();
+  }
+
   // ── State ─────────────────────────────────────────────────────
   let entries = load();
 
@@ -362,6 +406,7 @@
       entries.sort((a, b) => a.dateKey.localeCompare(b.dateKey));
     }
     save(entries);
+    _push();
     render();
   }
 
@@ -491,7 +536,15 @@
   });
 
   // ── Boot ──────────────────────────────────────────────────────
-  render();
+  (async () => {
+    await _pull();
+    render();
+    _subscribe();
+    window.addEventListener('beforeunload', () => _push());
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') _push();
+    });
+  })();
 })();
 </script>
 </body>
