@@ -179,6 +179,11 @@ body.topbar-modal-open {
     <span class="topbar-pill-label">STACK</span>
     <span class="topbar-pill-count" id="topbarStackCount">–/–</span>
   </a>
+  <a href="gym.html" class="topbar-pill" id="topbarGym">
+    <span class="topbar-pill-dot" style="background:#a78bfa"></span>
+    <span class="topbar-pill-label">GYM</span>
+    <span class="topbar-pill-count" id="topbarGymCount">–</span>
+  </a>
   <div class="topbar-water-wrap">
     <a href="health.html#water" class="topbar-water-pill" id="topbarWater">
       <span class="topbar-pill-dot"></span>
@@ -238,6 +243,15 @@ body.topbar-modal-open {
     return { done, total };
   }
 
+  function getGymWeight() {
+    try {
+      const arr = JSON.parse(localStorage.getItem('po_coach_weights') || '[]');
+      if (!Array.isArray(arr) || !arr.length) return null;
+      const last = arr[arr.length - 1];
+      return last ? last.weight.toFixed(1) + ' kg' : null;
+    } catch { return null; }
+  }
+
   function getWaterProgress() {
     let state = null;
     try { state = JSON.parse(localStorage.getItem('po_water_v1')); } catch (e) {}
@@ -290,6 +304,7 @@ body.topbar-modal-open {
     const g = getGoalsProgress();
     const s = getStackProgress();
     const w = getWaterProgress();
+    const gymW = getGymWeight();
 
     document.getElementById('topbarGoalsCount').textContent =
       g.total ? g.done + '/' + g.total : '0/0';
@@ -297,6 +312,7 @@ body.topbar-modal-open {
       s.total ? s.done + '/' + s.total : '0/0';
     document.getElementById('topbarWaterCount').textContent =
       w.total ? w.done + '/' + w.total : '0/0';
+    document.getElementById('topbarGymCount').textContent = gymW || '–';
 
     setPillStatus(goalsEl, classifyStatus(g.done, g.total));
     setPillStatus(stackEl, classifyStatus(s.done, s.total));
