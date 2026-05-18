@@ -804,6 +804,7 @@
   .gm-goal-row.drag-over-top { border-top: 2px solid rgba(255,255,255,0.3); }
   .gm-goal-row.drag-over-bottom { border-bottom: 2px solid rgba(255,255,255,0.3); }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="page-inner">
@@ -920,6 +921,9 @@
   const WAKE_HOUR = 10;
   const SLEEP_HOUR = 25;
   const CIRCUMFERENCE = 2 * Math.PI * 52; // ~326.726
+  const SUPABASE_URL = 'https://yqbptmylteamhtrgilsr.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_WAKs3Y4jz5m6UHvv__4tPQ_aWCqx1R6x';
+  const APP_KEY = 'dashboard';
 
   // ── Storage helpers ──
   function storeGet(key) {
@@ -930,8 +934,9 @@
     if (key.startsWith('goals:')) {
       window.dispatchEvent(new CustomEvent('goals-changed'));
     }
+    schedulePush();
   }
-  function storeDelete(key) { localStorage.removeItem(key); }
+  function storeDelete(key) { localStorage.removeItem(key); schedulePush(); }
   function storeListKeys(prefix) {
     const keys = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -940,6 +945,124 @@
     }
     return keys;
   }
+
+  // ── Supabase Sync ──
+  const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let _lastSyncedJson = null;
+  let _syncTimer = null;
+  let _pendingRemote = null;
+
+  function _collectState() {
+    const out = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k) continue;
+      if (k.startsWith('goals:') || k === 'goal_streak_v1') {
+        try { out[k] = JSON.parse(localStorage.getItem(k)); } catch {}
+      }
+    }
+    return out;
+  }
+
+  function schedulePush() {
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(_pushToSupabase, 250);
+  }
+
+  async function _pushToSupabase() {
+    try {
+      const data = _collectState();
+      const json = JSON.stringify(data);
+      if (json === _lastSyncedJson) return;
+      _lastSyncedJson = json;
+      await _sb.from('app_state').upsert(
+        { key: APP_KEY, data, updated_at: new Date().toISOString() },
+        { onConflict: 'key' }
+      );
+    } catch (e) { console.warn('[sync] push failed', e); }
+  }
+
+  function _isUserTyping() {
+    const el = document.activeElement;
+    if (!el) return false;
+    return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' ||
+           el.tagName === 'SELECT' || el.contentEditable === 'true';
+  }
+
+  function _applyRemote(data) {
+    if (!data) return;
+    Object.entries(data).forEach(([k, v]) => {
+      localStorage.setItem(k, JSON.stringify(v));
+    });
+    loadToday();
+    loadTomorrow();
+    renderStreak();
+  }
+
+  async function _pullFromSupabase() {
+    try {
+      const { data: row } = await _sb.from('app_state').select('data').eq('key', APP_KEY).maybeSingle();
+      const local = _collectState();
+      const hasLocal = Object.keys(local).length > 0;
+      if (row?.data && Object.keys(row.data).length > 0) {
+        _lastSyncedJson = JSON.stringify(row.data);
+        _applyRemote(row.data);
+      } else if (hasLocal) {
+        // First-launch seed: remote is empty but local has data — push it up
+        await _pushToSupabase();
+      }
+    } catch (e) { console.warn('[sync] pull failed', e); }
+  }
+
+  function _subscribeRealtime() {
+    _sb.channel('app_state:' + APP_KEY)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'app_state',
+        filter: `key=eq.${APP_KEY}`
+      }, payload => {
+        const data = payload.new?.data;
+        if (!data) return;
+        const json = JSON.stringify(data);
+        if (json === _lastSyncedJson) return; // echo from our own push
+        _lastSyncedJson = json;
+        if (_isUserTyping()) {
+          _pendingRemote = data;
+        } else {
+          _applyRemote(data);
+        }
+      })
+      .subscribe();
+
+    document.addEventListener('focusout', () => {
+      if (_pendingRemote) { _applyRemote(_pendingRemote); _pendingRemote = null; }
+    });
+  }
+
+  function _flushSync() {
+    clearTimeout(_syncTimer);
+    try {
+      const data = _collectState();
+      const json = JSON.stringify(data);
+      if (json === _lastSyncedJson) return;
+      _lastSyncedJson = json;
+      fetch(`${SUPABASE_URL}/rest/v1/app_state`, {
+        method: 'POST',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'apikey': SUPABASE_KEY,
+          'Prefer': 'resolution=merge-duplicates',
+        },
+        body: JSON.stringify({ key: APP_KEY, data, updated_at: new Date().toISOString() }),
+      });
+    } catch {}
+  }
+
+  ['pagehide', 'beforeunload'].forEach(ev => window.addEventListener(ev, _flushSync));
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') _flushSync();
+  });
 
   // ── Date helpers ──
   function getActiveDateString() {
@@ -983,7 +1106,7 @@
       const today = storeGet('goals:' + activeDate) || [];
       const existingTexts = new Set(today.map(g => g.text));
       undone.forEach(g => { if (!existingTexts.has(g.text)) today.push({ text: g.text, done: false }); });
-      localStorage.setItem('goals:' + activeDate, JSON.stringify(today));
+      storeSet('goals:' + activeDate, today);
       storeDelete(key);
     });
   }
@@ -1525,41 +1648,48 @@
     loadTomorrow();
   });
 
-  // ── Eyebrow labels ──
-  document.getElementById('todayLabel').textContent = `Today — ${formatDate(getActiveDateString())}`;
-  document.getElementById('tomorrowLabel').textContent = `Plan tomorrow — ${formatDate(getTomorrowDateString())}`;
-
   // ── Init ──
-  doRollover();
-  doStreakCheck();
+  function initDashboard() {
+    document.getElementById('todayLabel').textContent = `Today — ${formatDate(getActiveDateString())}`;
+    document.getElementById('tomorrowLabel').textContent = `Plan tomorrow — ${formatDate(getTomorrowDateString())}`;
 
-  const todayKey = 'goals:' + getActiveDateString();
-  const tomorrowKey = 'goals:' + getTomorrowDateString();
+    doRollover();
+    doStreakCheck();
 
-  makeAddHandlers(
-    document.getElementById('goalInput'),
-    document.getElementById('goalAddBtn'),
-    document.getElementById('goalPolishBtn'),
-    todayKey,
-    document.getElementById('polishStatus'),
-    loadToday
-  );
+    const todayKey = 'goals:' + getActiveDateString();
+    const tomorrowKey = 'goals:' + getTomorrowDateString();
 
-  makeAddHandlers(
-    document.getElementById('tomorrowInput'),
-    document.getElementById('tomorrowAddBtn'),
-    document.getElementById('tomorrowPolishBtn'),
-    tomorrowKey,
-    document.getElementById('tomorrowStatus'),
-    loadTomorrow
-  );
+    makeAddHandlers(
+      document.getElementById('goalInput'),
+      document.getElementById('goalAddBtn'),
+      document.getElementById('goalPolishBtn'),
+      todayKey,
+      document.getElementById('polishStatus'),
+      loadToday
+    );
 
-  loadToday();
-  loadTomorrow();
-  renderStreak();
-  updateDayBar();
-  setInterval(updateDayBar, 60 * 1000);
-  startTicker();
+    makeAddHandlers(
+      document.getElementById('tomorrowInput'),
+      document.getElementById('tomorrowAddBtn'),
+      document.getElementById('tomorrowPolishBtn'),
+      tomorrowKey,
+      document.getElementById('tomorrowStatus'),
+      loadTomorrow
+    );
+
+    loadToday();
+    loadTomorrow();
+    renderStreak();
+    updateDayBar();
+    setInterval(updateDayBar, 60 * 1000);
+    startTicker();
+  }
+
+  (async () => {
+    await _pullFromSupabase();
+    initDashboard();
+    _subscribeRealtime();
+  })();
 </script>
 </body>
 </html>
