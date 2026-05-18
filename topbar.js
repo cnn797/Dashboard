@@ -174,24 +174,11 @@ body.topbar-modal-open {
     <span class="topbar-pill-label">GOALS</span>
     <span class="topbar-pill-count" id="topbarGoalsCount">–/–</span>
   </a>
-  <a href="health.html" class="topbar-pill" id="topbarStack">
-    <span class="topbar-pill-dot"></span>
-    <span class="topbar-pill-label">STACK</span>
-    <span class="topbar-pill-count" id="topbarStackCount">–/–</span>
-  </a>
   <a href="gym.html" class="topbar-pill" id="topbarGym">
     <span class="topbar-pill-dot" style="background:#a78bfa"></span>
     <span class="topbar-pill-label">GYM</span>
     <span class="topbar-pill-count" id="topbarGymCount">–</span>
   </a>
-  <div class="topbar-water-wrap">
-    <a href="health.html#water" class="topbar-water-pill" id="topbarWater">
-      <span class="topbar-pill-dot"></span>
-      <span class="topbar-pill-label">WATER</span>
-      <span class="topbar-pill-count" id="topbarWaterCount">–/–</span>
-    </a>
-    <button class="topbar-water-add" id="topbarWaterAdd" aria-label="Log one drink" type="button">+</button>
-  </div>
 </header>
 `;
 
@@ -297,26 +284,16 @@ body.topbar-modal-open {
 
   function render() {
     const goalsEl = document.getElementById('topbarGoals');
-    const stackEl = document.getElementById('topbarStack');
-    const waterEl = document.getElementById('topbarWater');
     if (!goalsEl) return; // not injected yet
 
     const g = getGoalsProgress();
-    const s = getStackProgress();
-    const w = getWaterProgress();
     const gymW = getGymWeight();
 
     document.getElementById('topbarGoalsCount').textContent =
       g.total ? g.done + '/' + g.total : '0/0';
-    document.getElementById('topbarStackCount').textContent =
-      s.total ? s.done + '/' + s.total : '0/0';
-    document.getElementById('topbarWaterCount').textContent =
-      w.total ? w.done + '/' + w.total : '0/0';
     document.getElementById('topbarGymCount').textContent = gymW || '–';
 
     setPillStatus(goalsEl, classifyStatus(g.done, g.total));
-    setPillStatus(stackEl, classifyStatus(s.done, s.total));
-    setPillStatus(waterEl, classifyStatus(w.done, w.total));
   }
 
   // -------- Water +1 (works from any page) --------
