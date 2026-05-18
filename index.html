@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Christoph's Dashboard</title>
+<link rel="manifest" href="/Dashboard/manifest.json">
+<meta name="theme-color" content="#050506">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1690,6 +1694,10 @@
     initDashboard();
     _subscribeRealtime();
   })();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/Dashboard/sw.js');
+  }
 </script>
 </body>
 </html>
