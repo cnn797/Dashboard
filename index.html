@@ -1069,24 +1069,18 @@
   });
 
   // ── Date helpers ──
+  function _localDateStr(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
   function getActiveDateString() {
-    const now = new Date();
-    if (now.getHours() < 6) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - 1);
-      return d.toISOString().slice(0, 10);
-    }
-    return now.toISOString().slice(0, 10);
+    return _localDateStr(new Date());
   }
 
   function getTomorrowDateString() {
-    const now = new Date();
-    if (now.getHours() < 6) {
-      return now.toISOString().slice(0, 10);
-    }
-    const d = new Date(now);
+    const d = new Date();
     d.setDate(d.getDate() + 1);
-    return d.toISOString().slice(0, 10);
+    return _localDateStr(d);
   }
 
   function formatDate(dateStr) {
@@ -1100,6 +1094,7 @@
   // ── Rollover ──
   function doRollover() {
     const activeDate = getActiveDateString();
+    if (storeGet('last_rollover_date') === activeDate) return;
     const keys = storeListKeys('goals:').sort();
     keys.forEach(key => {
       const date = key.replace('goals:', '');
@@ -1113,6 +1108,22 @@
       storeSet('goals:' + activeDate, today);
       storeDelete(key);
     });
+    localStorage.setItem('last_rollover_date', activeDate);
+  }
+
+  function scheduleMidnightRollover() {
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+    setTimeout(() => {
+      doRollover();
+      doStreakCheck();
+      loadToday();
+      loadTomorrow();
+      renderStreak();
+      document.getElementById('todayLabel').textContent = `Today — ${formatDate(getActiveDateString())}`;
+      document.getElementById('tomorrowLabel').textContent = `Plan tomorrow — ${formatDate(getTomorrowDateString())}`;
+      scheduleMidnightRollover();
+    }, midnight - now);
   }
 
   // ── Streak check ──
@@ -1687,6 +1698,7 @@
     updateDayBar();
     setInterval(updateDayBar, 60 * 1000);
     startTicker();
+    scheduleMidnightRollover();
   }
 
   (async () => {
