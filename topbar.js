@@ -179,6 +179,11 @@ body.topbar-modal-open {
     <span class="topbar-pill-label">GYM</span>
     <span class="topbar-pill-count" id="topbarGymCount">–</span>
   </a>
+  <a href="finance.html" class="topbar-pill" id="topbarFinance">
+    <span class="topbar-pill-dot" style="background:#E07658"></span>
+    <span class="topbar-pill-label">FINANCE</span>
+    <span class="topbar-pill-count" id="topbarFinanceCount">–</span>
+  </a>
 </header>
 `;
 
@@ -228,6 +233,21 @@ body.topbar-modal-open {
     const total = Array.isArray(items) ? items.length : 0;
     const done = total ? items.filter(i => i && taken[i.id]).length : 0;
     return { done, total };
+  }
+
+  function getFinanceBurn() {
+    try {
+      const subs = JSON.parse(localStorage.getItem('subs') || '[]');
+      if (!Array.isArray(subs) || !subs.length) return null;
+      let monthly = 0;
+      subs.forEach(s => {
+        const a = Number(s.amount) || 0;
+        if (s.period === 'yearly')      monthly += a / 12;
+        else if (s.period === 'weekly') monthly += a * 4.345;
+        else                            monthly += a;
+      });
+      return monthly > 0 ? 'CHF ' + monthly.toFixed(0) + '/mo' : null;
+    } catch { return null; }
   }
 
   function getGymWeight() {
@@ -286,12 +306,14 @@ body.topbar-modal-open {
     const goalsEl = document.getElementById('topbarGoals');
     if (!goalsEl) return; // not injected yet
 
-    const g = getGoalsProgress();
-    const gymW = getGymWeight();
+    const g      = getGoalsProgress();
+    const gymW   = getGymWeight();
+    const finBurn = getFinanceBurn();
 
     document.getElementById('topbarGoalsCount').textContent =
       g.total ? g.done + '/' + g.total : '0/0';
-    document.getElementById('topbarGymCount').textContent = gymW || '–';
+    document.getElementById('topbarGymCount').textContent     = gymW    || '–';
+    document.getElementById('topbarFinanceCount').textContent = finBurn || '–';
 
     setPillStatus(goalsEl, classifyStatus(g.done, g.total));
   }

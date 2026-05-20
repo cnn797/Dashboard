@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0b">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Finances</title>
+<link rel="stylesheet" href="finance.css">
+<script src="topbar.js" defer></script>
+</head>
+<body>
+<div class="shell">
+
+<!-- ===== BACK BUTTON ===== -->
+<a href="index.html" class="fin-back-btn" aria-label="Back to dashboard">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  <span>Back</span>
+</a>
+
+<!-- ===== FINANCE TICKER (rotating subscription renewals) ===== -->
+<div class="finance-ticker hidden" id="financeTicker">
+  <span class="ticker-tag" id="tickerTag">RENEWS</span>
+  <div class="ticker-stream" id="tickerStream"></div>
+  <div class="ticker-dots" id="tickerDots"></div>
+</div>
+
+<!-- ===== NET WORTH ===== -->
+<div class="section" data-section="net">
+  <div class="section-title">
+    <span class="section-title-text">NET WORTH</span>
+  </div>
+  <div class="card" style="background:transparent;border:none !important;box-shadow:none;padding:0;overflow:visible">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Total net worth</div>
+        <div id="netWorthTotal" style="font-size:34px;font-weight:700;color:var(--text-primary);line-height:1.05;margin-top:2px">CHF 0</div>
+        <div id="netWorthBreakdown" style="font-size:11px;color:var(--text-tertiary);margin-top:4px"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:11px;color:var(--text-tertiary)">CHF</span>
+        <select id="netWorthCurrency" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;cursor:pointer">
+          <option value="CHF">CHF</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="GBP">GBP</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Overview row: line chart + donut -->
+    <div class="nw-overview-grid">
+      <div class="nw-chart-wrap" id="nwChartWrap">
+        <div class="nw-chart-head">
+          <span class="nw-chart-label">All-time</span>
+          <span class="nw-chart-delta" id="nwChartDelta">–</span>
+        </div>
+        <svg class="nw-chart-svg" id="nwChartSvg" viewBox="0 0 600 200" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="nwChartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="currentColor" stop-opacity="0.55"/>
+              <stop offset="60%"  stop-color="currentColor" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <line class="nw-chart-grid" x1="0" x2="600" y1="40"  y2="40"/>
+          <line class="nw-chart-grid" x1="0" x2="600" y1="100" y2="100"/>
+          <line class="nw-chart-grid" x1="0" x2="600" y1="160" y2="160"/>
+          <path id="nwChartArea" fill="url(#nwChartGrad)" d=""/>
+          <path id="nwChartLine" fill="none" stroke="currentColor" stroke-width="2.4"
+                stroke-linejoin="round" stroke-linecap="round"
+                style="filter: drop-shadow(0 0 6px currentColor)" d=""/>
+        </svg>
+        <div class="nw-chart-stats" id="nwChartStats">
+          <div class="nw-stat"><div class="nw-stat-label">1% =</div><div class="nw-stat-val" id="nwStat1pct">–</div></div>
+          <div class="nw-stat"><div class="nw-stat-label">All-time high</div><div class="nw-stat-val" id="nwStatHigh">–</div></div>
+          <div class="nw-stat"><div class="nw-stat-label">All-time low</div><div class="nw-stat-val" id="nwStatLow">–</div></div>
+          <div class="nw-stat"><div class="nw-stat-label">Snapshots</div><div class="nw-stat-val" id="nwStatCount">–</div></div>
+        </div>
+        <div class="nw-chart-empty" id="nwChartEmpty">Add or edit an asset to start tracking your net worth over time.</div>
+      </div>
+
+      <div class="nw-donut-wrap">
+        <div class="nw-chart-head">
+          <span class="nw-chart-label">Allocation</span>
+          <span class="nw-chart-delta" id="nwDonutCount">–</span>
+        </div>
+        <div class="nw-donut-stage">
+          <svg class="nw-donut-svg" id="nwDonutSvg" viewBox="0 0 140 140" aria-hidden="true"></svg>
+          <div class="nw-donut-center">
+            <div class="nw-donut-num" id="nwDonutTotal">–</div>
+            <div class="nw-donut-sub">total</div>
+          </div>
+        </div>
+        <div class="nw-donut-empty" id="nwDonutEmpty">Add an account to see your breakdown</div>
+        <div class="nw-donut-legend" id="nwDonutLegend"></div>
+      </div>
+    </div>
+
+    <!-- Activity log -->
+    <div class="nw-activity" id="nwActivity">
+      <div class="nw-activity-h">
+        <span class="nw-chart-label">Recent activity</span>
+        <span class="nw-chart-delta" id="nwActivityCount">–</span>
+      </div>
+      <div class="nw-activity-list" id="nwActivityList"></div>
+      <div class="nw-activity-empty" id="nwActivityEmpty">No activity yet — add your first account.</div>
+    </div>
+
+    <div class="card-grid" style="gap:10px">
+      <!-- Bank accounts -->
+      <div class="card nw-subcard">
+        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>🏦 Bank accounts</span><span id="bankTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
+        <div id="bankList" class="nw-list"></div>
+        <div class="quick-add">
+          <input type="text"   placeholder="Account name" id="bankName" />
+          <input type="number" placeholder="Amount"       id="bankAmount" step="0.01" />
+          <button class="quick-add-btn" id="bankAddBtn">+</button>
+        </div>
+      </div>
+      <!-- Stocks / Investments -->
+      <div class="card nw-subcard">
+        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>📈 Stocks / Investments</span><span id="stocksTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
+        <div id="stocksList" class="nw-list"></div>
+        <div class="quick-add">
+          <input type="text"   placeholder="Stock / fund" id="stocksName" />
+          <input type="number" placeholder="Value"        id="stocksAmount" step="0.01" />
+          <button class="quick-add-btn" id="stocksAddBtn">+</button>
+        </div>
+      </div>
+      <!-- Crypto -->
+      <div class="card nw-subcard">
+        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>🪙 Crypto</span><span id="cryptoTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
+        <div id="cryptoList" class="nw-list"></div>
+        <div class="quick-add">
+          <input type="text"   placeholder="Coin / wallet" id="cryptoName" />
+          <input type="number" placeholder="Value"         id="cryptoAmount" step="0.01" />
+          <button class="quick-add-btn" id="cryptoAddBtn">+</button>
+        </div>
+      </div>
+      <!-- Other assets -->
+      <div class="card nw-subcard">
+        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>💼 Other assets</span><span id="otherTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
+        <div id="otherList" class="nw-list"></div>
+        <div class="quick-add">
+          <input type="text"   placeholder="Asset name" id="otherName" />
+          <input type="number" placeholder="Value"      id="otherAmount" step="0.01" />
+          <button class="quick-add-btn" id="otherAddBtn">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ACTIVE SUBSCRIPTIONS ===== -->
+<div class="section" data-section="subs">
+  <div class="section-title">
+    <span class="section-title-text">ACTIVE SUBSCRIPTIONS</span>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg, rgba(83,74,183,0.07), rgba(216,90,48,0.05));border:1px solid rgba(83,74,183,0.20)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+      <div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Monthly burn</div>
+        <div id="subsTotal" style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1.1;margin-top:2px">CHF 0 <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span></div>
+        <div id="subsYearly" style="font-size:11px;color:var(--text-tertiary);margin-top:2px"></div>
+      </div>
+      <div id="subsCount" style="font-size:11px;color:var(--text-tertiary)"></div>
+    </div>
+    <div id="subsList"></div>
+    <div class="empty-state" id="subsEmpty">No subscriptions yet</div>
+    <div class="quick-add" style="flex-wrap:wrap;gap:6px">
+      <input type="text"   placeholder="Service (e.g. Netflix)" id="subName"   style="flex:1.5;min-width:120px" />
+      <input type="number" placeholder="Amount"                 id="subAmount" step="0.01" style="flex:1;max-width:100px" />
+      <select id="subCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);max-width:90px">
+        <option value="CHF">CHF</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
+      <select id="subPeriod" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);max-width:100px">
+        <option value="monthly">Monthly</option>
+        <option value="yearly">Yearly</option>
+        <option value="weekly">Weekly</option>
+      </select>
+      <label class="date-field" title="Next renewal date" style="min-width:150px"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" id="subRenewal" /></label>
+      <select id="subFromCat" title="Which net worth account to deduct from" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);min-width:130px">
+        <option value="">No accounts yet</option>
+      </select>
+      <label class="sub-auto-toggle" title="Auto-deduct from the linked account on each renewal">
+        <input type="checkbox" id="subAutoDeduct" />
+        <span class="sub-auto-track"><span class="sub-auto-thumb"></span></span>
+        <span class="sub-auto-label">Auto-deduct</span>
+      </label>
+      <button class="quick-add-btn" id="subAddBtn" onclick="window.__addSub && window.__addSub()">+ Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== INCOMING ORDERS ===== -->
+<div class="section" data-section="incoming">
+  <div class="section-title">
+    <span class="section-title-text">INCOMING ORDERS</span>
+  </div>
+  <div class="card ord-add-card">
+    <div class="ord-add-eyebrow">+ NEW ORDER</div>
+    <div class="ord-add-grid">
+      <input type="text"   id="ordName"     placeholder="Item (e.g. New iPhone)" class="ord-input ord-input-name">
+      <input type="number" id="ordCost"     placeholder="Cost" step="0.01"        class="ord-input ord-input-cost">
+      <select              id="ordCurrency"                                         class="ord-input ord-input-ccy">
+        <option value="CHF">CHF</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
+      <select id="ordFromCat" class="ord-input ord-input-from" title="Which net worth account this comes out of">
+        <option value="">No accounts yet</option>
+      </select>
+      <label class="date-field ord-input-date" title="Expected arrival"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" id="ordArrival" /></label>
+      <button class="ord-add-btn" id="ordAddBtn" onclick="window.__addOrder && window.__addOrder()">+ Add Order</button>
+    </div>
+    <div class="ord-add-preview" id="ordAddPreview">Type a cost — preview will show what % of net worth it takes.</div>
+  </div>
+  <div class="ord-section-h">
+    <span class="ord-section-label">ITEMS ON THE WAY</span>
+    <span class="ord-section-count" id="ordCount">0 items</span>
+  </div>
+  <div id="ordList"></div>
+  <div class="ord-empty-card" id="ordEmpty">
+    <div class="ord-empty-icon">📦</div>
+    <div class="ord-empty-title">Nothing on the way</div>
+    <div class="ord-empty-sub">Log an order above. Pick the account it comes out of, the expected arrival date, and the dashboard will show what % of your net worth it costs.</div>
+  </div>
+</div>
+
+<!-- ===== WISHLIST ===== -->
+<div class="section" data-section="wish">
+  <div class="section-title">
+    <span class="section-title-text">WISHLIST</span>
+  </div>
+  <div class="card wish-hero">
+    <div class="wish-hero-top">
+      <div>
+        <div class="wish-hero-eyebrow">WISHLIST TOTAL</div>
+        <div class="wish-hero-num" id="wishTotal">CHF 0</div>
+      </div>
+      <div class="wish-hero-pct-wrap">
+        <div class="wish-hero-pct-label">% OF NET WORTH</div>
+        <div class="wish-hero-pct-num" id="wishPctOfNwHero">–</div>
+      </div>
+    </div>
+    <div class="wish-hero-bar">
+      <div class="wish-hero-bar-fill" id="wishHeroFill" style="width:0%"></div>
+    </div>
+    <div class="wish-hero-foot" id="wishPctOfNw">Add net worth first to see this as a %</div>
+  </div>
+  <div class="card wish-add-card">
+    <div class="wish-add-eyebrow">+ ADD AN ITEM</div>
+    <div class="wish-add-row">
+      <input type="text"   id="wishName"   placeholder="Item name (e.g. New iPhone Pro Max)" class="wish-input wish-input-name">
+      <input type="number" id="wishAmount" placeholder="Cost" step="0.01"                     class="wish-input wish-input-amt">
+      <select id="wishCurrency" class="wish-input wish-input-ccy">
+        <option value="CHF">CHF</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
+      <button class="wish-add-btn" id="wishAddBtn" onclick="window.__addWish && window.__addWish()">+ Add</button>
+    </div>
+  </div>
+  <div class="wish-section-h">
+    <span class="wish-section-label">YOUR WISHES</span>
+    <span class="wish-section-count" id="wishCount">0 items</span>
+  </div>
+  <div id="wishList"></div>
+  <div class="wish-empty-card" id="wishEmpty">
+    <div class="wish-empty-icon">🎯</div>
+    <div class="wish-empty-title">No wishes yet</div>
+    <div class="wish-empty-sub">Add anything you're saving for — the dashboard will calculate what % of your net worth it'd cost.</div>
+  </div>
+</div>
+
+</div><!-- /.shell -->
+
+<!-- ===== BOTTOM TAB BAR ===== -->
+<nav class="bottom-tabs" id="bottomTabs" aria-label="Sections">
+  <button class="bot-tab active" data-tab="net">
+    <span class="bot-tab-icon">💰</span>
+    <span class="bot-tab-label">Net Worth</span>
+  </button>
+  <button class="bot-tab" data-tab="subs">
+    <span class="bot-tab-icon">📋</span>
+    <span class="bot-tab-label">Subs</span>
+  </button>
+  <button class="bot-tab" data-tab="incoming">
+    <span class="bot-tab-icon">📦</span>
+    <span class="bot-tab-label">Orders</span>
+  </button>
+  <button class="bot-tab" data-tab="wish">
+    <span class="bot-tab-icon">🎯</span>
+    <span class="bot-tab-label">Wishlist</span>
+  </button>
+</nav>
+
+<script src="finance-data.js"></script>
+<script src="finance-components.js"></script>
+<script src="finance.js"></script>
+</body>
+</html>
