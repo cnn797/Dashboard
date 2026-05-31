@@ -93,148 +93,6 @@
     .dash-title { font-size: 22px; }
   }
 
-  /* ── Goal Ticker ── */
-  .ticker-row {
-    margin-bottom: 18px;
-  }
-
-  .goal-ticker {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 12px;
-    border-radius: 12px;
-    background-image:
-      linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.30) 100%),
-      repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 3px);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .goal-ticker::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -40%;
-    width: 30%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-    animation: tickerSweep 8s linear infinite;
-    pointer-events: none;
-  }
-
-  @keyframes tickerSweep {
-    0% { left: -40%; }
-    100% { left: 110%; }
-  }
-
-  .goal-ticker-led {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-  }
-
-  .goal-ticker-led-dot {
-    display: block;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #6BE3A4;
-    box-shadow: 0 0 8px rgba(107,227,164,0.7);
-    animation: ledPulse 1.6s ease-in-out infinite;
-  }
-
-  @keyframes ledPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.45; transform: scale(0.85); }
-  }
-
-  .goal-ticker-label {
-    font-family: var(--font-mono);
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 0.18em;
-    color: var(--text-tertiary);
-    flex-shrink: 0;
-    text-transform: uppercase;
-  }
-
-  .goal-ticker-stage {
-    flex: 1;
-    height: 22px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .goal-ticker-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 22px;
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-primary);
-    white-space: nowrap;
-    position: absolute;
-    width: 100%;
-    top: 0;
-    left: 0;
-  }
-
-  .goal-ticker-row.is-leaving {
-    animation: ticker-leave 0.45s cubic-bezier(0.55, 0, 0.55, 1) forwards;
-  }
-
-  .goal-ticker-row.is-entering {
-    animation: ticker-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  }
-
-  @keyframes ticker-leave {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-100%); }
-  }
-
-  @keyframes ticker-enter {
-    from { opacity: 0; transform: translateY(100%); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .goal-ticker-status {
-    width: 18px;
-    flex-shrink: 0;
-    text-align: center;
-  }
-
-  .goal-ticker-text {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .goal-ticker-meta {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.04em;
-    color: var(--text-secondary);
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.04);
-    flex-shrink: 0;
-  }
-
-  @media (max-width: 480px) {
-    .goal-ticker { padding: 9px 12px; }
-    .goal-ticker-label { font-size: 9px; letter-spacing: 0.14em; }
-    .goal-ticker-row { font-size: 12px; }
-    .goal-ticker-meta { font-size: 10px; padding: 2px 7px; }
-  }
-
   /* ── Quote Card ── */
   .quote-card {
     padding: 22px 26px;
@@ -244,7 +102,7 @@
     min-height: 72px;
   }
   .quote-text {
-    font-size: 14.5px;
+    font-size: 18px;
     font-weight: 500;
     color: var(--text-secondary);
     line-height: 1.6;
@@ -665,21 +523,6 @@
 
   <h1 class="dash-title">Christoph's Dashboard</h1>
 
-  <!-- Goal Ticker -->
-  <div class="ticker-row">
-    <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
-      <div class="goal-ticker-led"><span class="goal-ticker-led-dot"></span></div>
-      <div class="goal-ticker-label">GOALS</div>
-      <div class="goal-ticker-stage" id="goalTickerStage">
-        <div class="goal-ticker-row">
-          <span class="goal-ticker-status" data-status="">·</span>
-          <span class="goal-ticker-text">Loading…</span>
-        </div>
-      </div>
-      <div class="goal-ticker-meta" id="goalTickerMeta">0/0</div>
-    </div>
-  </div>
-
   <!-- Quote Card -->
   <div class="card quote-card">
     <p class="quote-text" id="quoteText"></p>
@@ -729,9 +572,6 @@
   }
   function storeSet(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
-    if (key.startsWith('goals:')) {
-      window.dispatchEvent(new CustomEvent('goals-changed'));
-    }
     schedulePush();
   }
   function storeDelete(key) { localStorage.removeItem(key); schedulePush(); }
@@ -971,74 +811,6 @@
       }, 450);
     }, 10000);
   }
-
-  // ── Goal Ticker ──
-  let tickerItems = [];
-  let cycleIdx = 0;
-  let tickerInterval = null;
-
-  function buildTickerItems() {
-    const key = 'goals:' + getActiveDateString();
-    const goals = storeGet(key) || [];
-    const total = goals.length;
-    const done = goals.filter(g => g.done).length;
-    document.getElementById('goalTickerMeta').textContent = `${done}/${total}`;
-
-    if (total === 0) return [{ status: 'empty', text: 'No goals set for today — add one to get rolling.' }];
-    if (done === total) return [{ status: 'done', text: '✓ All goals done — solid day.' }];
-    const pending = goals.filter(g => !g.done);
-    return pending.map(g => ({ status: 'pending', text: g.text }));
-  }
-
-  function getStatusGlyph(status) {
-    if (status === 'done') return '✓';
-    if (status === 'pending') return '○';
-    return '·';
-  }
-
-  function getStatusColor(status) {
-    if (status === 'done') return '#6BE3A4';
-    return 'var(--text-tertiary)';
-  }
-
-  function tick(isFirst) {
-    const stage = document.getElementById('goalTickerStage');
-    tickerItems = buildTickerItems();
-    if (tickerItems.length === 0) return;
-    cycleIdx = cycleIdx % tickerItems.length;
-    const item = tickerItems[cycleIdx];
-    cycleIdx = (cycleIdx + 1) % tickerItems.length;
-
-    const newRow = document.createElement('div');
-    newRow.className = 'goal-ticker-row';
-    newRow.innerHTML = `
-      <span class="goal-ticker-status" data-status="${item.status}" style="color:${getStatusColor(item.status)}">${getStatusGlyph(item.status)}</span>
-      <span class="goal-ticker-text">${item.text}</span>
-    `;
-
-    const oldRow = stage.querySelector('.goal-ticker-row');
-    if (oldRow && !isFirst) {
-      oldRow.classList.add('is-leaving');
-      setTimeout(() => { if (oldRow.parentNode) oldRow.parentNode.removeChild(oldRow); }, 460);
-    } else if (oldRow && isFirst) {
-      stage.removeChild(oldRow);
-    }
-
-    newRow.classList.add('is-entering');
-    stage.appendChild(newRow);
-  }
-
-  function startTicker() {
-    cycleIdx = 0;
-    tick(true);
-    if (tickerInterval) clearInterval(tickerInterval);
-    tickerInterval = setInterval(() => tick(false), 5000);
-  }
-
-  window.addEventListener('goals-changed', () => {
-    cycleIdx = 0;
-    tick(false);
-  });
 
   // ── Render helpers ──
   function renderTodayHeader() {
@@ -1374,7 +1146,6 @@
 
     loadToday();
     renderStreak();
-    startTicker();
     initQuoteCard();
     scheduleMidnightRollover();
   }

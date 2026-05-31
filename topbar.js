@@ -177,7 +177,7 @@ body.topbar-modal-open {
   </a>
   <a href="tomorrow.html" class="topbar-pill" id="topbarTomorrow">
     <span class="topbar-pill-dot" style="background:#a78bfa"></span>
-    <span class="topbar-pill-label">TOMORROW</span>
+    <span class="topbar-pill-label">PLANNING</span>
     <span class="topbar-pill-count" id="topbarTomorrowCount">–</span>
   </a>
   <a href="finance.html" class="topbar-pill" id="topbarFinance">
