@@ -99,7 +99,7 @@
     margin-bottom: 14px;
     display: flex;
     align-items: center;
-    min-height: 72px;
+    min-height: 80px;
   }
   .quote-text {
     font-size: 18px;
@@ -108,6 +108,14 @@
     line-height: 1.6;
     letter-spacing: -0.008em;
     font-style: italic;
+    transition: opacity 0.45s ease;
+  }
+  .quote-attribution {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+    margin-top: 7px;
     transition: opacity 0.45s ease;
   }
 
@@ -525,7 +533,10 @@
 
   <!-- Quote Card -->
   <div class="card quote-card">
-    <p class="quote-text" id="quoteText"></p>
+    <div>
+      <p class="quote-text" id="quoteText"></p>
+      <p class="quote-attribution" id="quoteAttribution"></p>
+    </div>
   </div>
 
   <!-- To Do List Section -->
@@ -785,29 +796,39 @@
 
   // ── Quotes ──
   const QUOTES = [
-    "Don't take yourself so seriously. You're just a monkey with a plan.",
-    "You can't compete with someone who is having fun.",
-    "Your fear of looking stupid to people who don't care is holding you back.",
-    "The only thing that is doing the thing is doing the thing.",
-    "Some experiences are only available to you right now. Go and do them.",
-    "Internal happiness is the reward from being in flow. Create, meditate, love, play.",
-    "Man suffers only because he takes seriously what the gods made for fun.",
-    "Your nervous system will always choose a familiar hell over an unfamiliar heaven.",
-    "Smile :) You get one life and unlimited shots.",
-    "He who loves money will never have enough. Don't chase money; stay learning.",
+    { text: "Don't take yourself so seriously. You're just a monkey with a plan.", attr: "— Modern Wisdom" },
+    { text: "The only thing that is doing the thing is doing the thing.", attr: "— Modern Wisdom" },
+    { text: "Some experiences are only available to you right now. Go and do them.", attr: "— Modern Wisdom" },
+    { text: "Man suffers only because he takes seriously what the gods made for fun.", attr: "— Modern Wisdom" },
+    { text: "If you can't be happy with a coffee in the morning, you won't be happy with a yacht.", attr: "— Modern Wisdom" },
+    { text: "Smile :) You get one life and unlimited shots.", attr: "" },
+    { text: "He who loves money will never have enough. Don't chase money; stay learning.", attr: "— Ecclesiastes 5:10" },
   ];
   let _quoteIdx = Math.floor(Math.random() * QUOTES.length);
 
   function initQuoteCard() {
-    const el = document.getElementById('quoteText');
-    if (!el) return;
-    el.textContent = QUOTES[_quoteIdx];
+    const textEl = document.getElementById('quoteText');
+    const attrEl = document.getElementById('quoteAttribution');
+    if (!textEl) return;
+
+    function setQuote(q) {
+      textEl.textContent = '“' + q.text + '”';
+      if (attrEl) {
+        attrEl.textContent = q.attr;
+        attrEl.style.display = q.attr ? '' : 'none';
+      }
+    }
+
+    setQuote(QUOTES[_quoteIdx]);
+
     setInterval(() => {
-      el.style.opacity = '0';
+      textEl.style.opacity = '0';
+      if (attrEl) attrEl.style.opacity = '0';
       setTimeout(() => {
         _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
-        el.textContent = QUOTES[_quoteIdx];
-        el.style.opacity = '1';
+        setQuote(QUOTES[_quoteIdx]);
+        textEl.style.opacity = '1';
+        if (attrEl) attrEl.style.opacity = '1';
       }, 450);
     }, 10000);
   }
