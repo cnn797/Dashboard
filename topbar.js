@@ -43,6 +43,7 @@
   transition: background 0.15s, border-color 0.15s;
 }
 .topbar-pill:hover { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.10); }
+.topbar-pill.is-active { background: rgba(255, 255, 255, 0.09); border-color: rgba(255, 255, 255, 0.16); }
 .topbar-pill-dot {
   width: 7px; height: 7px; border-radius: 50%;
   background: #6ee7b7; flex-shrink: 0;
@@ -174,10 +175,10 @@ body.topbar-modal-open {
     <span class="topbar-pill-label">GOALS</span>
     <span class="topbar-pill-count" id="topbarGoalsCount">–/–</span>
   </a>
-  <a href="gym.html" class="topbar-pill" id="topbarGym">
+  <a href="tomorrow.html" class="topbar-pill" id="topbarTomorrow">
     <span class="topbar-pill-dot" style="background:#a78bfa"></span>
-    <span class="topbar-pill-label">GYM</span>
-    <span class="topbar-pill-count" id="topbarGymCount">–</span>
+    <span class="topbar-pill-label">TOMORROW</span>
+    <span class="topbar-pill-count" id="topbarTomorrowCount">–</span>
   </a>
   <a href="finance.html" class="topbar-pill" id="topbarFinance">
     <span class="topbar-pill-dot" style="background:#E07658"></span>
@@ -250,15 +251,6 @@ body.topbar-modal-open {
     } catch { return null; }
   }
 
-  function getGymWeight() {
-    try {
-      const arr = JSON.parse(localStorage.getItem('po_coach_weights') || '[]');
-      if (!Array.isArray(arr) || !arr.length) return null;
-      const last = arr[arr.length - 1];
-      return last ? last.weight.toFixed(1) + ' kg' : null;
-    } catch { return null; }
-  }
-
   function getWaterProgress() {
     let state = null;
     try { state = JSON.parse(localStorage.getItem('po_water_v1')); } catch (e) {}
@@ -302,17 +294,27 @@ body.topbar-modal-open {
     if (status === 'warn' || status === 'miss') pillEl.classList.add(status);
   }
 
+  function getTomorrowCount() {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const key = 'goals:' + d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+    let goals = [];
+    try { goals = JSON.parse(localStorage.getItem(key)) || []; } catch {}
+    return Array.isArray(goals) ? goals.filter(g => g && !g.deleted).length : 0;
+  }
+
   function render() {
     const goalsEl = document.getElementById('topbarGoals');
     if (!goalsEl) return; // not injected yet
 
-    const g      = getGoalsProgress();
-    const gymW   = getGymWeight();
+    const g       = getGoalsProgress();
     const finBurn = getFinanceBurn();
+    const tmCount = getTomorrowCount();
 
-    document.getElementById('topbarGoalsCount').textContent =
-      g.total ? g.done + '/' + g.total : '0/0';
-    document.getElementById('topbarGymCount').textContent     = gymW    || '–';
+    document.getElementById('topbarGoalsCount').textContent   = g.total ? g.done + '/' + g.total : '0/0';
+    document.getElementById('topbarTomorrowCount').textContent = tmCount || '–';
     document.getElementById('topbarFinanceCount').textContent = finBurn || '–';
 
     setPillStatus(goalsEl, classifyStatus(g.done, g.total));
@@ -416,8 +418,16 @@ body.topbar-modal-open {
   }
 
   // -------- Boot --------
+  function setActivePill() {
+    const filename = window.location.pathname.split('/').pop() || 'index.html';
+    const map = { 'index.html': 'topbarGoals', 'tomorrow.html': 'topbarTomorrow', 'finance.html': 'topbarFinance' };
+    const id = map[filename] || (filename === '' ? 'topbarGoals' : null);
+    if (id) { const el = document.getElementById(id); if (el) el.classList.add('is-active'); }
+  }
+
   function boot() {
     injectStyleAndHTML();
+    setActivePill();
     const btn = document.getElementById('topbarWaterAdd');
     if (btn) btn.addEventListener('click', (e) => { e.preventDefault(); addWater(); });
     render();

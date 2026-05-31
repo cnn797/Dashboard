@@ -235,96 +235,22 @@
     .goal-ticker-meta { font-size: 10px; padding: 2px 7px; }
   }
 
-  /* ── Day Ring ── */
-  .day-ring-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 26px;
-    flex-wrap: wrap;
+  /* ── Quote Card ── */
+  .quote-card {
+    padding: 22px 26px;
     margin-bottom: 14px;
-  }
-
-  .day-ring-container {
-    position: relative;
-    width: 168px;
-    height: 168px;
-    flex-shrink: 0;
-  }
-
-  .day-ring-svg {
-    width: 168px;
-    height: 168px;
-  }
-
-  .day-ring-inner {
-    position: absolute;
-    inset: 0;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    text-align: center;
-    gap: 0;
+    min-height: 72px;
   }
-
-  .day-ring-pct {
-    font-size: 40px;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    color: var(--text-primary);
-  }
-
-  .day-ring-phase {
-    font-family: var(--font-mono);
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--text-tertiary);
-    margin-top: 5px;
-  }
-
-  .day-ring-clock {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    color: var(--text-tertiary);
-    margin-top: 3px;
-  }
-
-  .day-ring-info {
-    max-width: 280px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .day-ring-status {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-
-  .day-ring-remaining {
-    font-family: var(--font-mono);
-    font-size: 12px;
+  .quote-text {
+    font-size: 14.5px;
+    font-weight: 500;
     color: var(--text-secondary);
-  }
-
-  .day-ring-hours {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-tertiary);
-  }
-
-  @media (max-width: 480px) {
-    .day-ring-container { width: 144px; height: 144px; }
-    .day-ring-svg { width: 144px; height: 144px; }
-    .day-ring-pct { font-size: 32px; }
-    .day-ring-status { font-size: 13px; }
+    line-height: 1.6;
+    letter-spacing: -0.008em;
+    font-style: italic;
+    transition: opacity 0.45s ease;
   }
 
   /* ── Section title ── */
@@ -396,41 +322,6 @@
     margin-bottom: 6px;
   }
 
-  .gm-progress-row {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-  }
-
-  .gm-progress-num {
-    font-size: 42px;
-    font-weight: 700;
-    letter-spacing: -0.045em;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-primary);
-    line-height: 1;
-    transition: color 0.3s;
-  }
-
-  .gm-all-done .gm-progress-num { color: var(--success); }
-
-  .gm-progress-total {
-    font-family: var(--font-mono);
-    font-size: 18px;
-    color: var(--text-tertiary);
-  }
-
-  .gm-progress-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.10em;
-    text-transform: uppercase;
-    color: var(--text-tertiary);
-    transition: color 0.3s;
-  }
-
-  .gm-all-done .gm-progress-label { color: var(--success); }
-
   .gm-streak {
     display: inline-flex;
     align-items: center;
@@ -465,30 +356,6 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.10em;
-  }
-
-  /* Segmented bar */
-  .gm-bar {
-    display: flex;
-    gap: 4px;
-    height: 6px;
-    margin-bottom: 16px;
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .gm-bar:empty { display: none; }
-
-  .gm-bar-seg {
-    flex: 1;
-    border-radius: 3px;
-    background: rgba(255,255,255,0.08);
-    transition: background 0.3s, box-shadow 0.3s;
-  }
-
-  .gm-bar-seg-done {
-    background: #6BE3A4;
-    box-shadow: 0 0 6px rgba(107,227,164,0.40);
   }
 
   /* Goal list */
@@ -786,24 +653,6 @@
 
   .polish-status.is-error { color: var(--danger); }
 
-  /* Tomorrow card extras */
-  .gm-card-tomorrow .gm-progress-row { display: none; }
-
-  .gm-tomorrow-sub {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    margin-top: 4px;
-  }
-
-  .gm-tomorrow-count {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.10em;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-tertiary);
-  }
-
   /* Drag-over indicator */
   .gm-goal-row.drag-over-top { border-top: 2px solid rgba(255,255,255,0.3); }
   .gm-goal-row.drag-over-bottom { border-bottom: 2px solid rgba(255,255,255,0.3); }
@@ -831,37 +680,9 @@
     </div>
   </div>
 
-  <!-- Day Ring -->
-  <div class="card">
-    <div class="day-ring-wrap">
-      <div class="day-ring-container">
-        <svg class="day-ring-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <filter id="ringGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-          <circle id="ringTrack" cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
-          <circle id="ringFill" cx="60" cy="60" r="52" fill="none"
-            stroke="#FFD89E" stroke-width="8" stroke-linecap="round"
-            stroke-dasharray="326.726" stroke-dashoffset="326.726"
-            transform="rotate(-90 60 60)"
-            filter="url(#ringGlow)"
-            style="transition: stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1), stroke 0.7s cubic-bezier(0.22,1,0.36,1);"/>
-        </svg>
-        <div class="day-ring-inner">
-          <div class="day-ring-pct" id="ringPct">—</div>
-          <div class="day-ring-phase" id="ringPhase">SLEEPING</div>
-          <div class="day-ring-clock" id="ringClock">12:00 AM</div>
-        </div>
-      </div>
-      <div class="day-ring-info">
-        <div class="day-ring-status" id="ringStatus">😴 Still sleeping</div>
-        <div class="day-ring-remaining" id="ringRemaining">Calculating…</div>
-        <div class="day-ring-hours">10:00 AM – 1:00 AM</div>
-      </div>
-    </div>
+  <!-- Quote Card -->
+  <div class="card quote-card">
+    <p class="quote-text" id="quoteText"></p>
   </div>
 
   <!-- To Do List Section -->
@@ -873,11 +694,6 @@
       <div class="gm-card-header">
         <div class="gm-card-header-left">
           <div class="gm-eyebrow" id="todayLabel">Today —</div>
-          <div class="gm-progress-row">
-            <div class="gm-progress-num" id="gmProgressNum">0</div>
-            <div class="gm-progress-total" id="gmProgressTotal">/ 0</div>
-            <div class="gm-progress-label" id="gmProgressLabel">no goals yet</div>
-          </div>
         </div>
         <div class="gm-streak" id="gmStreak">
           <span class="gm-streak-bolt">⚡</span>
@@ -885,7 +701,6 @@
           <span class="gm-streak-label">day streak</span>
         </div>
       </div>
-      <div class="gm-bar" id="gmBar"></div>
       <div id="emptyState" class="empty-state">No goals for today yet — add one below.</div>
       <ul id="goalList" class="gm-list"></ul>
       <button class="gm-push-btn" id="gmPushBtn">→ Push remaining to tomorrow</button>
@@ -897,25 +712,6 @@
       <div class="polish-status" id="polishStatus"></div>
     </div>
 
-    <!-- PLAN TOMORROW card -->
-    <div class="gm-card gm-card-tomorrow" id="tomorrowCard">
-      <div class="gm-card-header">
-        <div class="gm-card-header-left">
-          <div class="gm-eyebrow" id="tomorrowLabel">Plan tomorrow —</div>
-          <div class="gm-tomorrow-sub">Write tonight, locked until 6 AM.</div>
-          <div class="gm-progress-row"><!-- hidden via CSS --></div>
-        </div>
-        <div class="gm-tomorrow-count" id="gmTomorrowCount">0 planned</div>
-      </div>
-      <div id="tomorrowEmptyState" class="empty-state">Nothing planned for tomorrow yet.</div>
-      <ul id="tomorrowList" class="gm-list"></ul>
-      <div class="goal-input-wrap">
-        <input type="text" id="tomorrowInput" placeholder="Add a goal for tomorrow…">
-        <button class="btn-add" id="tomorrowAddBtn">+ Add</button>
-        <button class="btn-polish" id="tomorrowPolishBtn">✨ Polish</button>
-      </div>
-      <div class="polish-status" id="tomorrowStatus"></div>
-    </div>
   </div>
 
 </div>
@@ -923,9 +719,6 @@
 <script>
   // ── Constants ──
   const ANTHROPIC_API_KEY = '';
-  const WAKE_HOUR = 10;
-  const SLEEP_HOUR = 25;
-  const CIRCUMFERENCE = 2 * Math.PI * 52; // ~326.726
   const SUPABASE_URL = 'https://yqbptmylteamhtrgilsr.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxYnB0bXlsdGVhbWh0cmdpbHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDg3MjcsImV4cCI6MjA5NDYyNDcyN30.BOzkHgRHMA3EK0ZVKiqTqxBdQhaod8nGGudQFMu3Z1s';
   const APP_KEY = 'dashboard';
@@ -997,7 +790,9 @@
   function _applyRemote(data) {
     if (!data) return;
     Object.entries(data).forEach(([k, v]) => {
-      localStorage.setItem(k, JSON.stringify(v));
+      if (k.startsWith('goals:') || k === 'goal_streak_v1') {
+        localStorage.setItem(k, JSON.stringify(v));
+      }
     });
     loadToday();
     loadTomorrow();
@@ -1101,7 +896,7 @@
       const date = key.replace('goals:', '');
       if (date >= activeDate) return;
       const old = storeGet(key) || [];
-      const undone = old.filter(g => !g.done);
+      const undone = old.filter(g => !g.done && !g.deleted);
       if (undone.length === 0) { storeDelete(key); return; }
       const today = storeGet('goals:' + activeDate) || [];
       const existingTexts = new Set(today.map(g => g.text));
@@ -1122,7 +917,8 @@
       loadTomorrow();
       renderStreak();
       document.getElementById('todayLabel').textContent = `Today — ${formatDate(getActiveDateString())}`;
-      document.getElementById('tomorrowLabel').textContent = `Plan tomorrow — ${formatDate(getTomorrowDateString())}`;
+      const _tlabel = document.getElementById('tomorrowLabel');
+      if (_tlabel) _tlabel.textContent = `Plan tomorrow — ${formatDate(getTomorrowDateString())}`;
       scheduleMidnightRollover();
     }, midnight - now);
   }
@@ -1147,101 +943,33 @@
     return streak.count;
   }
 
-  // ── Day Ring ──
-  const SUN_PALETTE = [
-    [255, 216, 158],
-    [255, 205, 121],
-    [255, 227, 143],
-    [255, 183, 106],
-    [255, 149,  89],
-    [243, 111,  79],
-    [226,  93, 122],
-    [123,  91, 176],
-    [ 47,  58, 102],
+  // ── Quotes ──
+  const QUOTES = [
+    "Don't take yourself so seriously. You're just a monkey with a plan.",
+    "You can't compete with someone who is having fun.",
+    "Your fear of looking stupid to people who don't care is holding you back.",
+    "The only thing that is doing the thing is doing the thing.",
+    "Some experiences are only available to you right now. Go and do them.",
+    "Internal happiness is the reward from being in flow. Create, meditate, love, play.",
+    "Man suffers only because he takes seriously what the gods made for fun.",
+    "Your nervous system will always choose a familiar hell over an unfamiliar heaven.",
+    "Smile :) You get one life and unlimited shots.",
+    "He who loves money will never have enough. Don't chase money; stay learning.",
   ];
+  let _quoteIdx = Math.floor(Math.random() * QUOTES.length);
 
-  function lerpColor(pct) {
-    const stops = 8;
-    const t = pct / 100;
-    const idx = Math.min(Math.floor(t * stops), stops - 1);
-    const frac = t * stops - idx;
-    const a = SUN_PALETTE[idx], b = SUN_PALETTE[Math.min(idx + 1, stops)];
-    const r = Math.round(a[0] + (b[0] - a[0]) * frac);
-    const g = Math.round(a[1] + (b[1] - a[1]) * frac);
-    const bl = Math.round(a[2] + (b[2] - a[2]) * frac);
-    return `rgb(${r},${g},${bl})`;
-  }
-
-  function fmtDuration(totalMins) {
-    const h = Math.floor(totalMins / 60);
-    const m = Math.round(totalMins % 60);
-    if (h > 0 && m > 0) return `${h}h ${m}m`;
-    if (h > 0) return `${h}h`;
-    return `${m}m`;
-  }
-
-  function fmtClock(now) {
-    let h = now.getHours(), ampm = 'AM';
-    if (h >= 12) { ampm = 'PM'; if (h > 12) h -= 12; }
-    if (h === 0) h = 12;
-    const m = String(now.getMinutes()).padStart(2, '0');
-    return `${h}:${m} ${ampm}`;
-  }
-
-  function updateDayBar() {
-    const now = new Date();
-    let hours = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
-    // Past-midnight times (e.g. 12:30 AM) must be treated as hour 24.5, not 0.5
-    if (SLEEP_HOUR > 24 && hours < SLEEP_HOUR - 24) hours += 24;
-    const ringFill = document.getElementById('ringFill');
-    const ringPct = document.getElementById('ringPct');
-    const ringPhase = document.getElementById('ringPhase');
-    const ringClock = document.getElementById('ringClock');
-    const ringStatus = document.getElementById('ringStatus');
-    const ringRemaining = document.getElementById('ringRemaining');
-
-    ringClock.textContent = fmtClock(now);
-
-    if (hours < WAKE_HOUR) {
-      ringFill.style.strokeDashoffset = CIRCUMFERENCE;
-      ringFill.style.stroke = '#4D4B47';
-      ringPct.textContent = '—';
-      ringPhase.textContent = 'SLEEPING';
-      ringStatus.textContent = '😴 Still sleeping';
-      const minsUntil = (WAKE_HOUR - hours) * 60;
-      ringRemaining.textContent = `${fmtDuration(minsUntil)} until wake-up`;
-    } else if (hours < SLEEP_HOUR) {
-      const pct = (hours - WAKE_HOUR) / (SLEEP_HOUR - WAKE_HOUR) * 100;
-      const offset = CIRCUMFERENCE * (1 - pct / 100);
-      ringFill.style.strokeDashoffset = offset;
-      ringFill.style.stroke = lerpColor(pct);
-      ringPct.textContent = Math.round(pct) + '%';
-      if (pct < 25) {
-        ringPhase.textContent = 'MORNING';
-        ringStatus.textContent = '☀️ Morning — fresh start';
-      } else if (pct < 50) {
-        ringPhase.textContent = 'MIDDAY';
-        ringStatus.textContent = '⚡ Midday — keep moving';
-      } else if (pct < 75) {
-        ringPhase.textContent = 'AFTERNOON';
-        ringStatus.textContent = '🔥 Afternoon — push it';
-      } else if (pct < 90) {
-        ringPhase.textContent = 'EVENING';
-        ringStatus.textContent = '⏳ Evening — wrap up';
-      } else {
-        ringPhase.textContent = 'BEDTIME';
-        ringStatus.textContent = '🌙 Bedtime soon';
-      }
-      const minsLeft = (SLEEP_HOUR - hours) * 60;
-      ringRemaining.textContent = `${fmtDuration(minsLeft)} awake time left`;
-    } else {
-      ringFill.style.strokeDashoffset = 0;
-      ringFill.style.stroke = '#E25D7A';
-      ringPct.textContent = '100%';
-      ringPhase.textContent = 'PAST BEDTIME';
-      ringStatus.textContent = '⚠️ Past bedtime';
-      ringRemaining.textContent = 'Sleep!';
-    }
+  function initQuoteCard() {
+    const el = document.getElementById('quoteText');
+    if (!el) return;
+    el.textContent = QUOTES[_quoteIdx];
+    setInterval(() => {
+      el.style.opacity = '0';
+      setTimeout(() => {
+        _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
+        el.textContent = QUOTES[_quoteIdx];
+        el.style.opacity = '1';
+      }, 450);
+    }, 10000);
   }
 
   // ── Goal Ticker ──
@@ -1315,25 +1043,9 @@
   // ── Render helpers ──
   function renderTodayHeader() {
     const key = 'goals:' + getActiveDateString();
-    const goals = storeGet(key) || [];
+    const goals = (storeGet(key) || []).filter(g => !g.deleted);
     const total = goals.length;
     const done = goals.filter(g => g.done).length;
-
-    document.getElementById('gmProgressNum').textContent = done;
-    document.getElementById('gmProgressTotal').textContent = `/ ${total}`;
-
-    const label = document.getElementById('gmProgressLabel');
-    if (total === 0) label.textContent = 'no goals yet';
-    else if (done === total) label.textContent = 'all done — solid day';
-    else label.textContent = 'complete';
-
-    const bar = document.getElementById('gmBar');
-    bar.innerHTML = '';
-    goals.forEach(g => {
-      const seg = document.createElement('div');
-      seg.className = 'gm-bar-seg' + (g.done ? ' gm-bar-seg-done' : '');
-      bar.appendChild(seg);
-    });
 
     const card = document.getElementById('todayCard');
     if (total > 0 && done === total) card.classList.add('gm-all-done');
@@ -1353,9 +1065,11 @@
   }
 
   function renderTomorrowCount() {
+    const el = document.getElementById('gmTomorrowCount');
+    if (!el) return;
     const key = 'goals:' + getTomorrowDateString();
     const goals = storeGet(key) || [];
-    document.getElementById('gmTomorrowCount').textContent = `${goals.length} planned`;
+    el.textContent = `${goals.length} planned`;
   }
 
   // ── Drag/drop reorder ──
@@ -1388,8 +1102,11 @@
       const toIdx = parseInt(row.dataset.idx);
       if (toIdx === draggingIdx) return;
       const goals = storeGet(key) || [];
+      // When dragging downward, removing the source shifts all later indices by -1,
+      // so the effective insertion point is toIdx - 1 to land just before the target.
+      const insertAt = draggingIdx < toIdx ? toIdx - 1 : toIdx;
       const [moved] = goals.splice(draggingIdx, 1);
-      goals.splice(toIdx, 0, moved);
+      goals.splice(insertAt, 0, moved);
       storeSet(key, goals);
       reload();
       draggingIdx = null;
@@ -1484,7 +1201,7 @@
     delBtn.className = 'goal-delete';
     delBtn.textContent = '×';
     delBtn.addEventListener('click', () => {
-      goals.splice(idx, 1);
+      goals[idx].deleted = true;
       storeSet(key, goals);
       reload();
     });
@@ -1500,13 +1217,9 @@
   // ── Render list ──
   function renderListInto(goals, listEl, emptyEl, key, readOnly, headerRenderer) {
     listEl.innerHTML = '';
-    const total = goals.length;
+    const active = goals.filter(g => !g.deleted);
 
-    if (total === 0) {
-      emptyEl.style.display = 'block';
-    } else {
-      emptyEl.style.display = 'none';
-    }
+    emptyEl.style.display = active.length === 0 ? 'block' : 'none';
 
     const reload = () => {
       const fresh = storeGet(key) || [];
@@ -1514,36 +1227,12 @@
       if (headerRenderer) headerRenderer();
     };
 
-    const LIMIT = 5;
-    let showAll = false;
+    active.forEach(g => {
+      const actualIdx = goals.indexOf(g);
+      listEl.appendChild(buildGoalRow(g, actualIdx, goals, key, readOnly, reload));
+    });
 
-    function renderRows() {
-      listEl.innerHTML = '';
-      const visibleGoals = showAll ? goals : goals.slice(0, LIMIT);
-      visibleGoals.forEach((g, i) => {
-        const actualIdx = showAll ? i : i;
-        const row = buildGoalRow(g, i, goals, key, readOnly, reload);
-        listEl.appendChild(row);
-      });
-
-      // Show more button
-      if (total > LIMIT) {
-        const toggle = document.createElement('button');
-        toggle.className = 'gm-show-more';
-        if (!showAll) {
-          toggle.textContent = `Show ${total - LIMIT} more ▾`;
-          toggle.addEventListener('click', () => { showAll = true; renderRows(); });
-        } else {
-          toggle.textContent = 'Show less ▴';
-          toggle.addEventListener('click', () => { showAll = false; renderRows(); });
-        }
-        listEl.appendChild(toggle);
-      }
-
-      wireDragReorder(listEl, key, reload);
-    }
-
-    renderRows();
+    wireDragReorder(listEl, key, reload);
     if (headerRenderer) headerRenderer();
   }
 
@@ -1559,9 +1248,10 @@
 
   // ── Load tomorrow ──
   function loadTomorrow() {
+    const listEl = document.getElementById('tomorrowList');
+    if (!listEl) return;
     const key = 'goals:' + getTomorrowDateString();
     const goals = storeGet(key) || [];
-    const listEl = document.getElementById('tomorrowList');
     const emptyEl = document.getElementById('tomorrowEmptyState');
     renderListInto(goals, listEl, emptyEl, key, true, renderTomorrowCount);
     renderTomorrowCount();
@@ -1667,13 +1357,11 @@
   // ── Init ──
   function initDashboard() {
     document.getElementById('todayLabel').textContent = `Today — ${formatDate(getActiveDateString())}`;
-    document.getElementById('tomorrowLabel').textContent = `Plan tomorrow — ${formatDate(getTomorrowDateString())}`;
 
     doRollover();
     doStreakCheck();
 
     const todayKey = 'goals:' + getActiveDateString();
-    const tomorrowKey = 'goals:' + getTomorrowDateString();
 
     makeAddHandlers(
       document.getElementById('goalInput'),
@@ -1684,21 +1372,10 @@
       loadToday
     );
 
-    makeAddHandlers(
-      document.getElementById('tomorrowInput'),
-      document.getElementById('tomorrowAddBtn'),
-      document.getElementById('tomorrowPolishBtn'),
-      tomorrowKey,
-      document.getElementById('tomorrowStatus'),
-      loadTomorrow
-    );
-
     loadToday();
-    loadTomorrow();
     renderStreak();
-    updateDayBar();
-    setInterval(updateDayBar, 60 * 1000);
     startTicker();
+    initQuoteCard();
     scheduleMidnightRollover();
   }
 

@@ -118,24 +118,21 @@
           <button class="quick-add-btn" id="bankAddBtn">+</button>
         </div>
       </div>
-      <!-- Stocks / Investments -->
+      <!-- Stock Holdings (live prices) -->
       <div class="card nw-subcard">
-        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>📈 Stocks / Investments</span><span id="stocksTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
-        <div id="stocksList" class="nw-list"></div>
-        <div class="quick-add">
-          <input type="text"   placeholder="Stock / fund" id="stocksName" />
-          <input type="number" placeholder="Value"        id="stocksAmount" step="0.01" />
-          <button class="quick-add-btn" id="stocksAddBtn">+</button>
+        <div class="label" style="display:flex;justify-content:space-between;align-items:center">
+          <span>📈 Stock Holdings</span>
+          <span id="stocksTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span>
         </div>
-      </div>
-      <!-- Crypto -->
-      <div class="card nw-subcard">
-        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>🪙 Crypto</span><span id="cryptoTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
-        <div id="cryptoList" class="nw-list"></div>
-        <div class="quick-add">
-          <input type="text"   placeholder="Coin / wallet" id="cryptoName" />
-          <input type="number" placeholder="Value"         id="cryptoAmount" step="0.01" />
-          <button class="quick-add-btn" id="cryptoAddBtn">+</button>
+        <div id="stocksList" class="nw-list"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;min-height:20px;margin-bottom:4px">
+          <span id="stocksLastUpdated" style="font-size:10px;color:var(--text-tertiary)"></span>
+          <button id="stocksRefreshBtn" style="background:none;border:none;color:var(--text-tertiary);font-size:11px;cursor:pointer;padding:2px 4px;font-family:inherit">↻ Refresh</button>
+        </div>
+        <div class="quick-add" style="flex-wrap:wrap">
+          <input type="text"   placeholder="Ticker (e.g. AAPL)" id="stocksTicker" style="flex:0 0 110px;text-transform:uppercase" />
+          <input type="number" placeholder="Shares"              id="stocksShares" step="0.001" />
+          <button class="quick-add-btn" id="stocksAddBtn">+</button>
         </div>
       </div>
       <!-- Other assets -->

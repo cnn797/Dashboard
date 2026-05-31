@@ -35,9 +35,9 @@ if (_currencyEl) {
   });
 }
 
-// ── Net Worth add buttons ─────────────────────────────────────
+// ── Net Worth add buttons (bank & other) ─────────────────────
 NW_CATS.forEach(cat => {
-  const addBtn   = document.getElementById(cat.addId);
+  const addBtn    = document.getElementById(cat.addId);
   const nameInput = document.getElementById(cat.nameId);
   const amtInput  = document.getElementById(cat.amtId);
   if (!addBtn) return;
@@ -61,6 +61,38 @@ NW_CATS.forEach(cat => {
   nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') doAdd(); });
   amtInput.addEventListener('keydown',  e => { if (e.key === 'Enter') doAdd(); });
 });
+
+// ── Stock Holdings add ────────────────────────────────────────
+(function () {
+  const tickerInput = document.getElementById('stocksTicker');
+  const sharesInput = document.getElementById('stocksShares');
+  const addBtn      = document.getElementById('stocksAddBtn');
+  if (!addBtn) return;
+
+  function doAddHolding() {
+    const ticker = (tickerInput.value || '').trim().toUpperCase();
+    const shares = parseFloat(sharesInput.value);
+    if (!ticker || isNaN(shares) || shares <= 0) return;
+    const arr      = storeGet(STOCKS_HOLDINGS_KEY) || [];
+    const existing = arr.findIndex(h => h.ticker.toUpperCase() === ticker);
+    if (existing >= 0) {
+      arr[existing].shares = shares;
+    } else {
+      arr.push({ ticker, name: '', shares });
+    }
+    storeSet(STOCKS_HOLDINGS_KEY, arr);
+    tickerInput.value = '';
+    sharesInput.value = '';
+    renderAllNetWorth();
+  }
+
+  addBtn.addEventListener('click', doAddHolding);
+  tickerInput.addEventListener('keydown', e => { if (e.key === 'Enter') doAddHolding(); });
+  sharesInput.addEventListener('keydown', e => { if (e.key === 'Enter') doAddHolding(); });
+
+  const refreshBtn = document.getElementById('stocksRefreshBtn');
+  if (refreshBtn) refreshBtn.addEventListener('click', () => renderStockHoldings(true));
+}());
 
 // ── Parse "catKey::accountName" from From-dropdown values ─────
 function parseFromValue(v) {

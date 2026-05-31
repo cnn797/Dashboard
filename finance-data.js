@@ -16,27 +16,31 @@ const ACTIVITY_MAX    = 50;
 const ORD_FROM_META = {
   bank:   { name: 'Bank',   color: '#7DD3FC' },
   stocks: { name: 'Stocks', color: '#6EE7B7' },
-  crypto: { name: 'Crypto', color: '#FBBF24' },
   other:  { name: 'Other',  color: '#B794F4' }
 };
 
 const NW_CATS = [
-  { key: 'bank',   listId: 'bankList',   totalId: 'bankTotal',   nameId: 'bankName',   amtId: 'bankAmount',   addId: 'bankAddBtn' },
-  { key: 'stocks', listId: 'stocksList', totalId: 'stocksTotal', nameId: 'stocksName', amtId: 'stocksAmount', addId: 'stocksAddBtn' },
-  { key: 'crypto', listId: 'cryptoList', totalId: 'cryptoTotal', nameId: 'cryptoName', amtId: 'cryptoAmount', addId: 'cryptoAddBtn' },
-  { key: 'other',  listId: 'otherList',  totalId: 'otherTotal',  nameId: 'otherName',  amtId: 'otherAmount',  addId: 'otherAddBtn' }
+  { key: 'bank',  listId: 'bankList',  totalId: 'bankTotal',  nameId: 'bankName',  amtId: 'bankAmount',  addId: 'bankAddBtn' },
+  { key: 'other', listId: 'otherList', totalId: 'otherTotal', nameId: 'otherName', amtId: 'otherAmount', addId: 'otherAddBtn' }
 ];
 
 const NW_SLICE_META = {
   bank:   { name: 'Bank',    color: '#7DD3FC' },
   stocks: { name: 'Stocks',  color: '#6EE7B7' },
-  crypto: { name: 'Crypto',  color: '#FBBF24' },
   other:  { name: 'Other',   color: '#B794F4' },
   subs:   { name: 'Subs/yr', color: '#FF8A8A' }
 };
 
+const STOCKS_HOLDINGS_KEY   = 'stocks:holdings';
+const STOCKS_PRICE_CACHE_KEY = 'stocks:price_cache';
+const STOCK_CACHE_TTL        = 5 * 60 * 1000;
+
 // ── Shared mutable state ─────────────────────────────────────
-let exchangeRates = { CHF: 1, USD: 1, EUR: 1, GBP: 1 };
+let exchangeRates        = { CHF: 1, USD: 1, EUR: 1, GBP: 1 };
+let cachedStocksTotalCHF = 0;
+let stockPriceCache      = {}; // { TICKER: { price, currency, name, ts } | null (tried+failed) }
+let stockFetchAttempted  = {}; // { TICKER: timestamp } — prevents rapid retries on failure
+let _stocksFetching      = false;
 
 // ── Storage helpers ──────────────────────────────────────────
 function storeGet(key) {
@@ -76,7 +80,7 @@ function monthlyEquivalent(item) {
 }
 
 function nwGrandCHF() {
-  let g = 0;
+  let g = cachedStocksTotalCHF;
   NW_CATS.forEach(cat => {
     const items = storeGet('nw:' + cat.key) || [];
     items.forEach(it => { g += Number(it.amount) || 0; });
@@ -139,6 +143,39 @@ function logNetWorthSnapshot(grandCHF) {
   hist.push({ t: Date.now(), v });
   if (hist.length > NW_HISTORY_MAX) hist.splice(0, hist.length - NW_HISTORY_MAX);
   storeSet(NW_HISTORY_KEY, hist);
+}
+
+// ── Stock price cache: persist to / restore from localStorage ─
+function persistStockPriceCache() {
+  const toSave = {};
+  Object.entries(stockPriceCache).forEach(([k, v]) => { if (v) toSave[k] = v; });
+  storeSet(STOCKS_PRICE_CACHE_KEY, toSave);
+}
+
+(function loadStockPriceCache() {
+  const saved = storeGet(STOCKS_PRICE_CACHE_KEY);
+  if (saved && typeof saved === 'object') Object.assign(stockPriceCache, saved);
+}());
+
+// ── Stock price fetch via serverless proxy (avoids CORS) ─────
+async function fetchStockQuote(ticker) {
+  const sym = ticker.toUpperCase();
+  try {
+    const r = await fetch('/api/quote?ticker=' + encodeURIComponent(sym));
+    if (r.ok) {
+      const d = await r.json();
+      if (d && d.price != null) {
+        return { price: d.price, currency: d.currency || 'USD', name: d.name || '', ts: Date.now() };
+      }
+      console.warn('[stocks] /api/quote no price for', sym, d);
+    } else {
+      const err = await r.json().catch(() => ({}));
+      console.warn('[stocks] /api/quote HTTP', r.status, 'for', sym, err.error || '');
+    }
+  } catch (e) {
+    console.error('[stocks] fetch error for', sym, e);
+  }
+  return null;
 }
 
 // ── Exchange rates ────────────────────────────────────────────

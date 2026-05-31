@@ -189,7 +189,7 @@ function populateSubFromSelect() {
   if (!sel) return;
   const prev     = sel.value;
   const accounts = listAllNwAccounts();
-  const ICONS    = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼' };
+  const ICONS    = { bank: '🏦', stocks: '📈', other: '💼' };
   if (!accounts.length) {
     sel.innerHTML = '<option value="">No accounts yet</option>';
     sel.disabled  = true;
@@ -208,7 +208,7 @@ function populateOrdFromSelect() {
   if (!sel) return;
   const accounts = listAllNwAccounts();
   const prev     = sel.value;
-  const ICONS    = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼' };
+  const ICONS    = { bank: '🏦', stocks: '📈', other: '💼' };
   if (!accounts.length) {
     sel.innerHTML = '<option value="">No accounts yet</option>';
     sel.disabled  = true;
@@ -300,17 +300,171 @@ function renderNetWorthCategory(cat) {
   return total;
 }
 
+// ── Stock Holdings render ─────────────────────────────────────
+async function renderStockHoldings(forceRefetch) {
+  const holdings  = storeGet(STOCKS_HOLDINGS_KEY) || [];
+  const listEl    = document.getElementById('stocksList');
+  const totalEl   = document.getElementById('stocksTotal');
+  const lastUpdEl = document.getElementById('stocksLastUpdated');
+  if (!listEl) return;
+
+  _paintStockRows(holdings, listEl);
+
+  const now   = Date.now();
+  const stale = holdings.filter(h => {
+    const t   = h.ticker.toUpperCase();
+    const c   = stockPriceCache[t];
+    if (c && (now - c.ts) <= STOCK_CACHE_TTL) return false;          // fresh
+    const attempted = stockFetchAttempted[t];
+    if (!forceRefetch && attempted && (now - attempted) < STOCK_CACHE_TTL) return false; // failed recently
+    return true;
+  });
+
+  if (!holdings.length || (!forceRefetch && !stale.length)) {
+    _calcAndUpdateStocksTotal(holdings, totalEl, lastUpdEl);
+    return;
+  }
+  if (_stocksFetching && !forceRefetch) return;
+  _stocksFetching = true;
+  if (lastUpdEl) lastUpdEl.textContent = 'Updating…';
+
+  const tickers = [...new Set(
+    (forceRefetch ? holdings : stale).map(h => h.ticker.toUpperCase())
+  )];
+  await Promise.all(tickers.map(async t => {
+    const q = await fetchStockQuote(t);
+    if (q) {
+      stockPriceCache[t]   = q;
+      stockFetchAttempted[t] = null;
+      const hold = holdings.find(h => h.ticker.toUpperCase() === t);
+      if (hold && !hold.name && q.name) {
+        hold.name = q.name;
+        storeSet(STOCKS_HOLDINGS_KEY, holdings);
+      }
+    } else {
+      stockFetchAttempted[t] = Date.now();
+      if (stockPriceCache[t] === undefined) stockPriceCache[t] = null; // mark tried+failed
+      console.warn('[stocks] price unavailable for', t);
+    }
+  }));
+
+  persistStockPriceCache();
+  _stocksFetching = false;
+  _paintStockRows(holdings, listEl);
+  _calcAndUpdateStocksTotal(holdings, totalEl, lastUpdEl);
+}
+
+function _paintStockRows(holdings, listEl) {
+  listEl.innerHTML = '';
+  holdings.forEach((h, idx) => {
+    const cached = stockPriceCache[h.ticker.toUpperCase()];
+    const shares = Number(h.shares) || 0;
+    const row    = document.createElement('div');
+    row.className = 'nw-row';
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'nw-name';
+    nameEl.innerHTML =
+        '<span style="font-weight:700;font-family:var(--font-mono);font-size:11px;letter-spacing:0.05em;color:var(--accent)">'
+      + escapeHtml(h.ticker.toUpperCase()) + '</span>'
+      + (h.name ? ' <span style="color:var(--text-secondary);font-size:12px">' + escapeHtml(h.name) + '</span>' : '')
+      + '<span style="display:block;margin-top:2px;font-size:10px;color:var(--text-quaternary)">'
+      + shares + ' sh'
+      + (cached ? ' × ' + cached.currency + ' '
+          + cached.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '')
+      + '</span>';
+
+    let totalCHF = 0;
+    const amtEl  = document.createElement('span');
+    amtEl.className = 'nw-amt';
+    if (cached) {
+      const rate = exchangeRates[cached.currency] || exchangeRates.USD || 1;
+      totalCHF = shares * cached.price / rate;
+      amtEl.textContent = fmtMoney(totalCHF);
+    } else if (cached === null) {
+      amtEl.innerHTML = '<span style="color:var(--text-quaternary);font-size:11px">Price unavailable</span>';
+    } else {
+      amtEl.innerHTML = '<span style="color:var(--text-quaternary);font-size:11px">Loading…</span>';
+    }
+
+    const del = document.createElement('button');
+    del.className   = 'nw-del';
+    del.textContent = '×';
+    del.addEventListener('click', () => {
+      const arr     = storeGet(STOCKS_HOLDINGS_KEY) || [];
+      const removed = arr.splice(idx, 1)[0];
+      storeSet(STOCKS_HOLDINGS_KEY, arr);
+      if (removed) {
+        const c   = stockPriceCache[removed.ticker.toUpperCase()];
+        const rate = c ? (exchangeRates[c.currency] || 1) : 1;
+        const val  = c ? (Number(removed.shares) || 0) * c.price / rate : 0;
+        logActivity('stocks', removed.ticker + (removed.name ? ' · ' + removed.name : ''), -val, 'delete');
+      }
+      renderAllNetWorth();
+    });
+
+    row.appendChild(nameEl); row.appendChild(amtEl); row.appendChild(del);
+    listEl.appendChild(row);
+  });
+}
+
+function _calcAndUpdateStocksTotal(holdings, totalEl, lastUpdEl) {
+  let total = 0, latestTs = 0;
+  holdings.forEach(h => {
+    const c = stockPriceCache[h.ticker.toUpperCase()];
+    if (c) {
+      const rate = exchangeRates[c.currency] || exchangeRates.USD || 1;
+      total += (Number(h.shares) || 0) * c.price / rate;
+      if (c.ts > latestTs) latestTs = c.ts;
+    }
+  });
+  cachedStocksTotalCHF = total;
+  if (totalEl) totalEl.textContent = fmtMoney(total);
+  if (lastUpdEl) {
+    if (latestTs && holdings.length) {
+      const mins = Math.round((Date.now() - latestTs) / 60000);
+      lastUpdEl.textContent = mins < 1 ? 'just now' : mins + 'm ago';
+    } else {
+      lastUpdEl.textContent = holdings.length ? 'price unavailable' : '';
+    }
+  }
+  _refreshNWTotals();
+}
+
+function _refreshNWTotals() {
+  let grand = cachedStocksTotalCHF;
+  const breakdown   = [];
+  const sliceTotals = { stocks: cachedStocksTotalCHF };
+  NW_CATS.forEach(cat => {
+    const items = storeGet('nw:' + cat.key) || [];
+    let sub = 0;
+    items.forEach(it => { sub += Number(it.amount) || 0; });
+    grand += sub;
+    sliceTotals[cat.key] = sub;
+    if (sub > 0) breakdown.push(cat.key + ': ' + fmtMoney(sub));
+  });
+  if (cachedStocksTotalCHF > 0) breakdown.unshift('stocks: ' + fmtMoney(cachedStocksTotalCHF));
+  const nwTotal = document.getElementById('netWorthTotal');
+  const nwBreak = document.getElementById('netWorthBreakdown');
+  if (nwTotal) nwTotal.textContent = fmtMoney(grand);
+  if (nwBreak) nwBreak.textContent = breakdown.join('  •  ');
+  logNetWorthSnapshot(grand);
+  renderNetWorthChart();
+  renderAllocationDonut(sliceTotals, grand);
+}
+
 // ── Master render ─────────────────────────────────────────────
 function renderAllNetWorth() {
-  let grand = 0;
-  const breakdown  = [];
-  const sliceTotals = {};
+  let grand = cachedStocksTotalCHF;
+  const breakdown   = [];
+  const sliceTotals = { stocks: cachedStocksTotalCHF };
   NW_CATS.forEach(cat => {
     const sub = renderNetWorthCategory(cat);
     grand += sub;
     sliceTotals[cat.key] = sub;
     if (sub > 0) breakdown.push(cat.key + ': ' + fmtMoney(sub));
   });
+  if (cachedStocksTotalCHF > 0) breakdown.unshift('stocks: ' + fmtMoney(cachedStocksTotalCHF));
   const nwTotal = document.getElementById('netWorthTotal');
   const nwBreak = document.getElementById('netWorthBreakdown');
   if (nwTotal) nwTotal.textContent = fmtMoney(grand);
@@ -322,6 +476,7 @@ function renderAllNetWorth() {
   renderWishlist();
   renderOrders();
   updateOrdPreview();
+  renderStockHoldings(false);
 }
 
 // ── Activity log render ───────────────────────────────────────
@@ -376,6 +531,12 @@ function renderAllocationDonut(catTotals, grand) {
       if (v > 0) slices.push({ key: cat.key + '::' + i, name: String(it.name || '(unnamed)'), color: meta.color, value: v });
     });
   });
+  if (cachedStocksTotalCHF > 0) {
+    const meta     = NW_SLICE_META.stocks;
+    const holdings = storeGet(STOCKS_HOLDINGS_KEY) || [];
+    const label    = holdings.length > 1 ? 'Stocks (' + holdings.length + ')' : 'Stocks';
+    slices.push({ key: 'stocks', name: label, color: meta.color, value: cachedStocksTotalCHF });
+  }
   const subItems       = storeGet('subs') || [];
   const annualSubsCHF  = subItems.reduce((s, it) => s + monthlyEquivalent(it) * 12, 0);
   if (annualSubsCHF > 0) {
@@ -654,7 +815,7 @@ function editSubInline(idx) {
     '<option value="' + c + '"' + (c === enteredCcy ? ' selected' : '') + '>' + c + '</option>'
   ).join('');
   const accounts   = listAllNwAccounts();
-  const ICONS      = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼' };
+  const ICONS      = { bank: '🏦', stocks: '📈', other: '💼' };
   const currentFrom = (it.fromCat && it.fromAccount) ? (it.fromCat + '::' + it.fromAccount) : '';
   const fromOpts   = '<option value="">No account linked</option>'
     + accounts.map(a => {
@@ -922,7 +1083,7 @@ function openDeductChooser(orderId, cardEl) {
   if (!order) return;
   const accounts = listAllNwAccounts();
   if (!accounts.length) { alert('Add at least one net worth account before deducting.'); return; }
-  const ICONS = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼' };
+  const ICONS = { bank: '🏦', stocks: '📈', other: '💼' };
   const cost  = Number(order.amount) || 0;
   const optsHtml = accounts.map(a => {
     const insufficient = a.amountCHF < cost - 0.005;

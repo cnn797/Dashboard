@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Outreach — Dashboard</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="outreach.css" />
+</head>
+<body>
+  <script src="topbar.js" defer></script>
+
+  <div class="page-inner">
+    <h1 class="dash-title">Outreach</h1>
+
+    <!-- Tabs -->
+    <div class="or-tabs">
+      <button class="or-tab active" data-tab="contacts">Contacts</button>
+      <button class="or-tab" data-tab="templates">Templates</button>
+    </div>
+
+    <!-- ── Contacts pane ── -->
+    <div class="or-tab-pane" id="pane-contacts">
+
+      <!-- Intention card -->
+      <div class="card">
+        <p style="font-size:11px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:10px">Today's intention</p>
+        <div class="or-intention-row">
+          <textarea class="or-input or-textarea" id="intentionText"
+            placeholder="e.g. Send 3 messages, follow up with Anna..."
+            rows="2" style="flex:1;resize:none"></textarea>
+          <button class="btn-add" id="intentionSaveBtn" style="align-self:flex-end">Save</button>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="or-metrics">
+        <div class="card or-metric-card">
+          <div class="or-metric-num" id="metricTotal">0</div>
+          <div class="or-metric-label">Total</div>
+        </div>
+        <div class="card or-metric-card">
+          <div class="or-metric-num" id="metricSent">0</div>
+          <div class="or-metric-label">Sent</div>
+        </div>
+        <div class="card or-metric-card">
+          <div class="or-metric-num" id="metricReplies">0</div>
+          <div class="or-metric-label">Replies</div>
+        </div>
+        <div class="card or-metric-card or-metric-streak">
+          <div class="or-metric-num" id="metricStreak">0</div>
+          <div class="or-metric-label">Day streak</div>
+        </div>
+      </div>
+
+      <!-- Pipeline -->
+      <div class="card">
+        <div class="section-title">Pipeline</div>
+        <div class="or-pipeline-bar">
+          <div class="or-pipeline-fill" id="pipelineFill" style="width:0%"></div>
+        </div>
+        <div class="or-pipeline-stages" id="pipelineStages"></div>
+      </div>
+
+      <!-- Filter row -->
+      <div class="or-filter-row">
+        <select class="or-input or-select" id="filterSource" style="flex:1;min-width:100px"></select>
+        <select class="or-input or-select" id="filterStatus" style="flex:1;min-width:100px">
+          <option value="">All statuses</option>
+          <option value="not-sent">Not sent</option>
+          <option value="sent">Sent</option>
+          <option value="replied">Replied</option>
+          <option value="call-booked">Call booked</option>
+          <option value="completed">Completed</option>
+        </select>
+        <button class="btn-add" id="addContactBtn">+ Add</button>
+      </div>
+
+      <div id="contactList"></div>
+    </div>
+
+    <!-- ── Templates pane ── -->
+    <div class="or-tab-pane" id="pane-templates" hidden>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+        <button class="btn-add" id="addTemplateBtn">+ Add template</button>
+      </div>
+      <div id="templateList"></div>
+    </div>
+  </div><!-- /page-inner -->
+
+  <!-- ── Contact modal ── -->
+  <div class="modal-bg" id="contactModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="contactModalTitle">Add Contact</span>
+        <button class="modal-close" data-modal="contactModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label class="modal-label">Name</label>
+          <input type="text" class="or-input" id="cName" placeholder="Full name" autocomplete="off" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Company</label>
+          <input type="text" class="or-input" id="cCompany" placeholder="Company or org" autocomplete="off" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Source</label>
+          <input type="text" class="or-input" id="cSource" placeholder="e.g. NU Alumni Portal" autocomplete="off" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Background</label>
+          <textarea class="or-input or-textarea" id="cBackground" placeholder="Context, how you found them..." rows="3"></textarea>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Date</label>
+          <input type="date" class="or-input" id="cDate" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Status</label>
+          <select class="or-input or-select" id="cStatus" style="width:100%">
+            <option value="not-sent">Not sent</option>
+            <option value="sent">Sent</option>
+            <option value="replied">Replied</option>
+            <option value="call-booked">Call booked</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Notes</label>
+          <textarea class="or-input or-textarea" id="cNotes" placeholder="Any notes..." rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="or-btn-ghost" data-modal="contactModal">Cancel</button>
+        <button class="btn-add" id="contactModalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Template modal ── -->
+  <div class="modal-bg" id="templateModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="templateModalTitle">Add Template</span>
+        <button class="modal-close" data-modal="templateModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label class="modal-label">Template name</label>
+          <input type="text" class="or-input" id="tName" placeholder="e.g. NU Alumni — Standard outreach" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Context</label>
+          <input type="text" class="or-input" id="tContext" placeholder="e.g. NU Alumni Portal" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Subject</label>
+          <input type="text" class="or-input" id="tSubject" placeholder="Email subject line" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Body</label>
+          <textarea class="or-input or-textarea" id="tBody"
+            placeholder="Use [NAME] and [HOOK] as placeholders..." rows="9"></textarea>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Notes</label>
+          <textarea class="or-input or-textarea" id="tNotes" placeholder="When to use this..." rows="2"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="or-btn-ghost" data-modal="templateModal">Cancel</button>
+        <button class="btn-add" id="templateModalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="or-toast" id="orToast"></div>
+
+  <script src="outreach.js"></script>
+</body>
+</html>
