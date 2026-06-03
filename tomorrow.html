@@ -642,6 +642,12 @@
 
   function _applyRemote(data) {
     if (!data) return;
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('goals:') && !(k in data)) {
+        localStorage.removeItem(k);
+      }
+    }
     Object.entries(data).forEach(([k, v]) => {
       if (k.startsWith('goals:') || k === 'goal_streak_v1') {
         localStorage.setItem(k, JSON.stringify(v));
@@ -653,13 +659,13 @@
   async function _pullFromSupabase() {
     try {
       const { data: row } = await _sb.from('app_state').select('data').eq('key', APP_KEY).maybeSingle();
-      const local = _collectState();
-      const hasLocal = Object.keys(local).length > 0;
-      if (row?.data && Object.keys(row.data).length > 0) {
-        _lastSyncedJson = JSON.stringify(row.data);
-        _applyRemote(row.data);
-      } else if (hasLocal) {
-        await _pushToSupabase();
+      if (row !== null) {
+        const remoteData = row.data || {};
+        _lastSyncedJson = JSON.stringify(remoteData);
+        _applyRemote(remoteData);
+      } else {
+        const local = _collectState();
+        if (Object.keys(local).length > 0) await _pushToSupabase();
       }
     } catch (e) { console.warn('[sync] pull failed', e); }
   }

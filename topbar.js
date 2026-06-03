@@ -221,8 +221,9 @@ body.topbar-modal-open {
     const key = 'goals:' + activeDateKey();
     let goals = [];
     try { goals = JSON.parse(localStorage.getItem(key)) || []; } catch (e) {}
-    const total = Array.isArray(goals) ? goals.length : 0;
-    const done = total ? goals.filter(g => g && g.done).length : 0;
+    const active = Array.isArray(goals) ? goals.filter(g => g && !g.deleted) : [];
+    const total = active.length;
+    const done = active.filter(g => g.done).length;
     return { done, total };
   }
 

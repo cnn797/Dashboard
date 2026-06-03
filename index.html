@@ -640,6 +640,15 @@
 
   function _applyRemote(data) {
     if (!data) return;
+    // Remove local goals keys absent from remote — without this, a key deleted
+    // on device A stays in device B's localStorage and gets pushed back up on
+    // the next write, resurrecting deleted/rolled-over tasks everywhere.
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('goals:') && !(k in data)) {
+        localStorage.removeItem(k);
+      }
+    }
     Object.entries(data).forEach(([k, v]) => {
       if (k.startsWith('goals:') || k === 'goal_streak_v1') {
         localStorage.setItem(k, JSON.stringify(v));
@@ -653,14 +662,16 @@
   async function _pullFromSupabase() {
     try {
       const { data: row } = await _sb.from('app_state').select('data').eq('key', APP_KEY).maybeSingle();
-      const local = _collectState();
-      const hasLocal = Object.keys(local).length > 0;
-      if (row?.data && Object.keys(row.data).length > 0) {
-        _lastSyncedJson = JSON.stringify(row.data);
-        _applyRemote(row.data);
-      } else if (hasLocal) {
-        // First-launch seed: remote is empty but local has data — push it up
-        await _pushToSupabase();
+      if (row !== null) {
+        // Row exists: remote is always the source of truth, even when empty.
+        // Never let stale local data overwrite a deliberate remote deletion.
+        const remoteData = row.data || {};
+        _lastSyncedJson = JSON.stringify(remoteData);
+        _applyRemote(remoteData);
+      } else {
+        // Row does not exist yet — genuine first launch. Seed remote from local.
+        const local = _collectState();
+        if (Object.keys(local).length > 0) await _pushToSupabase();
       }
     } catch (e) { console.warn('[sync] pull failed', e); }
   }
@@ -785,8 +796,9 @@
       const date = key.replace('goals:', '');
       if (startFrom && date <= startFrom) return;
       const goals = storeGet(key) || [];
-      if (goals.length === 0) return;
-      const allDone = goals.every(g => g.done);
+      const active = goals.filter(g => !g.deleted);
+      if (active.length === 0) return;
+      const allDone = active.every(g => g.done);
       if (allDone) { streak.count++; } else { streak.count = 0; }
       streak.lastProcessedDate = date;
     });
@@ -862,7 +874,7 @@
     if (!el) return;
     const key = 'goals:' + getTomorrowDateString();
     const goals = storeGet(key) || [];
-    el.textContent = `${goals.length} planned`;
+    el.textContent = `${goals.filter(g => !g.deleted).length} planned`;
   }
 
   // ── Drag/drop reorder ──
@@ -1137,7 +1149,7 @@
     const todayGoals = storeGet(todayKey) || [];
     const tomorrowGoals = storeGet(tomorrowKey) || [];
     const existingTexts = new Set(tomorrowGoals.map(g => g.text));
-    todayGoals.filter(g => !g.done).forEach(g => {
+    todayGoals.filter(g => !g.done && !g.deleted).forEach(g => {
       if (!existingTexts.has(g.text)) tomorrowGoals.push({ text: g.text, done: false });
     });
     const remaining = todayGoals.filter(g => g.done);
