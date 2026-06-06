@@ -226,10 +226,12 @@
     opacity: 0;
     width: 100%;
     height: 100%;
-    cursor: not-allowed;
+    cursor: pointer;
     z-index: 1;
     margin: 0;
   }
+
+  .gm-cb-wrap input[type="checkbox"]:disabled { cursor: not-allowed; }
 
   .gm-cb-custom {
     position: absolute;
@@ -237,6 +239,41 @@
     border-radius: 7px;
     border: 1.5px solid rgba(255,255,255,0.12);
     background: rgba(255,255,255,0.02);
+    transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .gm-cb-custom::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #050506;
+    border-top: none;
+    border-left: none;
+    transform: translate(-50%, -50%) rotate(45deg) scale(0);
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .gm-cb-wrap input:checked + .gm-cb-custom {
+    background: #6BE3A4;
+    border-color: #6BE3A4;
+    box-shadow: 0 0 12px rgba(107,227,164,0.40);
+  }
+
+  .gm-cb-wrap input:checked + .gm-cb-custom::after {
+    transform: translate(-50%, -50%) rotate(45deg) scale(1);
+  }
+
+  .gm-goal-row.is-done {
+    opacity: 0.45;
+    background: rgba(107,227,164,0.04);
+  }
+
+  .gm-goal-row.is-done .gm-goal-text {
+    text-decoration: line-through;
+    text-decoration-color: rgba(255,255,255,0.4);
   }
 
   .gm-goal-text {
@@ -382,6 +419,25 @@
     </div>
   </div>
 
+  <!-- Other checklist -->
+  <div class="section">
+    <div class="section-title">Other</div>
+    <div class="gm-card" id="otherCard">
+      <div class="gm-card-header">
+        <div class="gm-card-header-left">
+          <div class="gm-eyebrow">Ongoing</div>
+          <div class="gm-tomorrow-count" id="gmOtherCount">0 items</div>
+        </div>
+      </div>
+      <div id="otherEmptyState" class="empty-state">Nothing here yet — add an item below.</div>
+      <ul id="otherList" class="gm-list"></ul>
+      <div class="goal-input-wrap">
+        <input type="text" id="otherInput" placeholder="Add an item…">
+        <button class="btn-add" id="otherAddBtn">+ Add</button>
+      </div>
+      <div class="polish-status" id="otherStatus"></div>
+    </div>
+  </div>
 
 </div>
 <script>
@@ -409,7 +465,7 @@
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (!k) continue;
-      if (k.startsWith('goals:') || k === 'goal_streak_v1') {
+      if (k.startsWith('goals:') || k === 'goal_streak_v1' || k === 'planning_other') {
         try { out[k] = JSON.parse(localStorage.getItem(k)); } catch {}
       }
     }
@@ -450,11 +506,12 @@
       }
     }
     Object.entries(data).forEach(([k, v]) => {
-      if (k.startsWith('goals:') || k === 'goal_streak_v1') {
+      if (k.startsWith('goals:') || k === 'goal_streak_v1' || k === 'planning_other') {
         localStorage.setItem(k, JSON.stringify(v));
       }
     });
     loadTomorrow();
+    loadOther();
   }
 
   async function _pullFromSupabase() {
@@ -607,9 +664,11 @@
   }
 
   // ── Build goal row ──
-  function buildGoalRow(g, idx, goals, key, reload) {
+  function buildGoalRow(g, idx, goals, key, reload, checkable = false) {
     const li = document.createElement('li');
-    li.className = 'gm-goal-row' + (g.queued && !g.done ? ' is-queued' : '');
+    li.className = 'gm-goal-row' +
+      (checkable && g.done ? ' is-done' : '') +
+      (g.queued && !g.done ? ' is-queued' : '');
     li.dataset.idx = idx;
     li.draggable = true;
 
@@ -619,10 +678,20 @@
 
     const cbWrap = document.createElement('label');
     cbWrap.className = 'gm-cb-wrap';
-    cbWrap.title = 'Goals activate on rollover';
     const cb = document.createElement('input');
     cb.type = 'checkbox';
-    cb.disabled = true;
+    cb.checked = !!g.done;
+    cb.disabled = !checkable;
+    if (!checkable) cbWrap.title = 'Goals activate on rollover';
+    if (checkable) {
+      cb.addEventListener('change', () => {
+        goals[idx].done = cb.checked;
+        if (cb.checked) goals[idx].doneAt = Date.now();
+        else delete goals[idx].doneAt;
+        storeSet(key, goals);
+        reload();
+      });
+    }
     const cbCustom = document.createElement('span');
     cbCustom.className = 'gm-cb-custom';
     cbWrap.appendChild(cb);
@@ -662,20 +731,20 @@
   }
 
   // ── Render list ──
-  function renderListInto(goals, listEl, emptyEl, key, headerRenderer) {
+  function renderListInto(goals, listEl, emptyEl, key, headerRenderer, checkable = false) {
     listEl.innerHTML = '';
     const active = goals.filter(g => !g.deleted);
     emptyEl.style.display = active.length === 0 ? 'block' : 'none';
 
     const reload = () => {
       const fresh = storeGet(key) || [];
-      renderListInto(fresh, listEl, emptyEl, key, headerRenderer);
+      renderListInto(fresh, listEl, emptyEl, key, headerRenderer, checkable);
       if (headerRenderer) headerRenderer();
     };
 
     active.forEach(g => {
       const actualIdx = goals.indexOf(g);
-      listEl.appendChild(buildGoalRow(g, actualIdx, goals, key, reload));
+      listEl.appendChild(buildGoalRow(g, actualIdx, goals, key, reload, checkable));
     });
 
     wireDragReorder(listEl, key, reload);
@@ -700,6 +769,24 @@
     const emptyEl = document.getElementById('tomorrowEmptyState');
     renderListInto(goals, listEl, emptyEl, key, renderTomorrowCount);
     renderTomorrowCount();
+  }
+
+  // ── Other helpers ──
+  function renderOtherCount() {
+    const el = document.getElementById('gmOtherCount');
+    if (!el) return;
+    const items = storeGet('planning_other') || [];
+    const n = items.filter(g => !g.deleted).length;
+    el.textContent = `${n} item${n !== 1 ? 's' : ''}`;
+  }
+
+  function loadOther() {
+    const listEl = document.getElementById('otherList');
+    if (!listEl) return;
+    const items = storeGet('planning_other') || [];
+    const emptyEl = document.getElementById('otherEmptyState');
+    renderListInto(items, listEl, emptyEl, 'planning_other', renderOtherCount, true);
+    renderOtherCount();
   }
 
   // ── Init ──
@@ -731,7 +818,31 @@
       }
     });
 
+    const otherInputEl = document.getElementById('otherInput');
+    const otherAddBtn  = document.getElementById('otherAddBtn');
+
+    function addOtherItem(text) {
+      const items = storeGet('planning_other') || [];
+      items.push({ text, done: false });
+      storeSet('planning_other', items);
+      otherInputEl.value = '';
+      loadOther();
+    }
+
+    otherAddBtn.addEventListener('click', () => {
+      const text = otherInputEl.value.trim();
+      if (text) addOtherItem(text);
+    });
+
+    otherInputEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const text = otherInputEl.value.trim();
+        if (text) addOtherItem(text);
+      }
+    });
+
     loadTomorrow();
+    loadOther();
   }
 
   (async () => {
