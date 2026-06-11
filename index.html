@@ -522,6 +522,201 @@
   /* Drag-over indicator */
   .gm-goal-row.drag-over-top { border-top: 2px solid rgba(255,255,255,0.3); }
   .gm-goal-row.drag-over-bottom { border-bottom: 2px solid rgba(255,255,255,0.3); }
+
+  /* ── Rule of 300 ── */
+  .r300-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .r300-eyebrow {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+  }
+  .r300-overall-row { display: flex; align-items: baseline; gap: 8px; }
+  .r300-overall-num {
+    font-size: 32px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, #E07658 0%, #F2C063 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .r300-overall-num.is-done {
+    background: linear-gradient(135deg, #6BE3A4 0%, #4fd0c4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .r300-overall-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-tertiary);
+  }
+  .r300-streak-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .r300-streak-pill.is-active {
+    background: rgba(224,118,88,0.12);
+    border-color: rgba(224,118,88,0.30);
+    color: #E07658;
+  }
+  .r300-streak-num {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .r300-streak-lbl {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+  }
+  .r300-divider { height: 1px; background: rgba(255,255,255,0.06); margin-bottom: 18px; }
+  .r300-row { margin-bottom: 20px; }
+  .r300-row:last-child { margin-bottom: 0; }
+  .r300-row-label { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+  .r300-row-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    transition: color 0.3s;
+  }
+  .r300-row-target { font-size: 10.5px; color: var(--text-tertiary); font-weight: 600; letter-spacing: 0.04em; }
+  .r300-row-pct {
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-secondary);
+    min-width: 38px;
+    text-align: right;
+    transition: color 0.3s;
+  }
+  .r300-row.r300-row-done .r300-row-name { color: var(--success); }
+  .r300-row.r300-row-done .r300-row-pct  { color: var(--success); }
+  .r300-bar-track {
+    width: 100%;
+    height: 5px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .r300-bar-track.r300-bar-thin { height: 3px; margin-bottom: 6px; }
+  .r300-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #E07658, #F2C063);
+    transition: width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 0;
+  }
+  .r300-bar-fill.is-done { background: linear-gradient(90deg, #6BE3A4, #4fd0c4); }
+  .r300-stepper { display: flex; align-items: center; gap: 5px; }
+  .r300-unit { font-size: 11px; color: var(--text-tertiary); font-weight: 600; letter-spacing: 0.04em; margin-left: 4px; }
+  .r300-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .r300-btn:hover { background: rgba(255,255,255,0.10); }
+  .r300-btn:active { transform: scale(0.94); }
+  .r300-btn.r300-btn-sm { padding: 5px 9px; font-size: 14px; }
+  .r300-val {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    min-width: 44px;
+    text-align: center;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    user-select: none;
+    display: inline-block;
+  }
+  .r300-val:hover { background: rgba(255,255,255,0.06); }
+  .r300-val-input {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    width: 68px;
+    text-align: center;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 6px;
+    padding: 3px 6px;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .r300-val-input::-webkit-outer-spin-button,
+  .r300-val-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .r300-val-input-sm { font-size: 13px !important; width: 44px !important; padding: 2px 5px !important; }
+  .r300-sprint-row { margin-bottom: 14px; }
+  .r300-sprint-row:last-child { margin-bottom: 0; }
+  .r300-sprint-info { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; }
+  .r300-sprint-name { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); flex: 1; }
+  .r300-sprint-vals { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .r300-sprint-pct { font-size: 11px; font-weight: 700; color: var(--text-tertiary); font-family: var(--font-mono); font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; }
+  .r300-sprint-stepper { display: flex; align-items: center; gap: 6px; margin-top: 7px; }
+  .r300-sprint-stepval {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    min-width: 28px;
+    text-align: center;
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 5px;
+    user-select: none;
+    display: inline-block;
+  }
+  .r300-sprint-stepval:hover { background: rgba(255,255,255,0.06); }
+  .r300-sprint-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 16px 0; }
+
+  @media (max-width: 480px) {
+    .r300-overall-num { font-size: 26px; }
+    .r300-btn { padding: 5px 8px; font-size: 11px; }
+    .r300-btn.r300-btn-sm { padding: 5px 7px; }
+    .r300-val { font-size: 18px; min-width: 36px; }
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="topbar.js" defer></script>
@@ -536,6 +731,172 @@
     <div>
       <p class="quote-text" id="quoteText"></p>
       <p class="quote-attribution" id="quoteAttribution"></p>
+    </div>
+  </div>
+
+  <!-- Rule of 300 -->
+  <div class="section">
+    <div class="section-title">Rule of 300</div>
+
+    <!-- Daily Scorecard -->
+    <div class="card">
+      <div class="r300-header">
+        <div>
+          <div class="r300-eyebrow" id="r300DateLabel">Daily Scorecard</div>
+          <div class="r300-overall-row">
+            <span class="r300-overall-num" id="r300OverallPct">0%</span>
+            <span class="r300-overall-label">daily completion</span>
+          </div>
+        </div>
+        <div class="r300-streak-pill" id="r300StreakPill">
+          <span>🔥</span>
+          <span class="r300-streak-num" id="r300StreakNum">0</span>
+          <span class="r300-streak-lbl">day streak</span>
+        </div>
+      </div>
+
+      <div class="r300-divider"></div>
+
+      <div class="r300-row" id="r300RowContent">
+        <div class="r300-row-label">
+          <span class="r300-row-name">Content Creation</span>
+          <span class="r300-row-target">100 min</span>
+          <span class="r300-row-pct" id="r300PctContent">0%</span>
+        </div>
+        <div class="r300-bar-track"><div class="r300-bar-fill" id="r300BarContent" style="width:0%"></div></div>
+        <div class="r300-stepper">
+          <button class="r300-btn" data-field="content" data-delta="-10">−10</button>
+          <button class="r300-btn r300-btn-sm" data-field="content" data-delta="-1">−1</button>
+          <span class="r300-val" id="r300ValContent">0</span>
+          <button class="r300-btn r300-btn-sm" data-field="content" data-delta="1">+1</button>
+          <button class="r300-btn" data-field="content" data-delta="10">+10</button>
+          <span class="r300-unit">min</span>
+        </div>
+      </div>
+
+      <div class="r300-row" id="r300RowOutreach">
+        <div class="r300-row-label">
+          <span class="r300-row-name">Outreach</span>
+          <span class="r300-row-target">100 actions</span>
+          <span class="r300-row-pct" id="r300PctOutreach">0%</span>
+        </div>
+        <div class="r300-bar-track"><div class="r300-bar-fill" id="r300BarOutreach" style="width:0%"></div></div>
+        <div class="r300-stepper">
+          <button class="r300-btn" data-field="outreach" data-delta="-10">−10</button>
+          <button class="r300-btn r300-btn-sm" data-field="outreach" data-delta="-1">−1</button>
+          <span class="r300-val" id="r300ValOutreach">0</span>
+          <button class="r300-btn r300-btn-sm" data-field="outreach" data-delta="1">+1</button>
+          <button class="r300-btn" data-field="outreach" data-delta="10">+10</button>
+          <span class="r300-unit">actions</span>
+        </div>
+      </div>
+
+      <div class="r300-row" id="r300RowComments">
+        <div class="r300-row-label">
+          <span class="r300-row-name">Comments / Engagement</span>
+          <span class="r300-row-target">100 actions</span>
+          <span class="r300-row-pct" id="r300PctComments">0%</span>
+        </div>
+        <div class="r300-bar-track"><div class="r300-bar-fill" id="r300BarComments" style="width:0%"></div></div>
+        <div class="r300-stepper">
+          <button class="r300-btn" data-field="comments" data-delta="-10">−10</button>
+          <button class="r300-btn r300-btn-sm" data-field="comments" data-delta="-1">−1</button>
+          <span class="r300-val" id="r300ValComments">0</span>
+          <button class="r300-btn r300-btn-sm" data-field="comments" data-delta="1">+1</button>
+          <button class="r300-btn" data-field="comments" data-delta="10">+10</button>
+          <span class="r300-unit">actions</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 90-Day Sprint -->
+    <div class="card">
+      <div class="r300-eyebrow" style="margin-bottom:16px">90-Day Sprint</div>
+
+      <div class="r300-sprint-row">
+        <div class="r300-sprint-info">
+          <span class="r300-sprint-name">Content Minutes</span>
+          <span class="r300-sprint-vals"><span id="r300S_content">0</span> / 9,000</span>
+          <span class="r300-sprint-pct" id="r300S_contentPct">0%</span>
+        </div>
+        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_contentBar" style="width:0%"></div></div>
+      </div>
+
+      <div class="r300-sprint-row">
+        <div class="r300-sprint-info">
+          <span class="r300-sprint-name">Outreach Actions</span>
+          <span class="r300-sprint-vals"><span id="r300S_outreach">0</span> / 9,000</span>
+          <span class="r300-sprint-pct" id="r300S_outreachPct">0%</span>
+        </div>
+        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_outreachBar" style="width:0%"></div></div>
+      </div>
+
+      <div class="r300-sprint-row">
+        <div class="r300-sprint-info">
+          <span class="r300-sprint-name">Comments / Engagement</span>
+          <span class="r300-sprint-vals"><span id="r300S_comments">0</span> / 9,000</span>
+          <span class="r300-sprint-pct" id="r300S_commentsPct">0%</span>
+        </div>
+        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_commentsBar" style="width:0%"></div></div>
+      </div>
+
+      <div class="r300-sprint-divider"></div>
+
+      <div class="r300-sprint-row">
+        <div class="r300-sprint-info">
+          <span class="r300-sprint-name">Scorecard Completions</span>
+          <span class="r300-sprint-vals"><span id="r300S_scorecards">0</span> / 30</span>
+          <span class="r300-sprint-pct" id="r300S_scorecardsPct">0%</span>
+        </div>
+        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_scorecardsBar" style="width:0%"></div></div>
+        <div class="r300-sprint-stepper">
+          <button class="r300-btn r300-btn-sm" data-sprint="scorecards" data-delta="-1">−</button>
+          <span class="r300-sprint-stepval" id="r300S_scorecardsCtrl" data-sprint="scorecards">0</span>
+          <button class="r300-btn r300-btn-sm" data-sprint="scorecards" data-delta="1">+</button>
+        </div>
+      </div>
+
+      <div class="r300-sprint-row">
+        <div class="r300-sprint-info">
+          <span class="r300-sprint-name">Founder Debriefs</span>
+          <span class="r300-sprint-vals"><span id="r300S_debriefs">0</span> / 15</span>
+          <span class="r300-sprint-pct" id="r300S_debriefsPct">0%</span>
+        </div>
+        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_debriefsBar" style="width:0%"></div></div>
+        <div class="r300-sprint-stepper">
+          <button class="r300-btn r300-btn-sm" data-sprint="debriefs" data-delta="-1">−</button>
+          <span class="r300-sprint-stepval" id="r300S_debriefsCtrl" data-sprint="debriefs">0</span>
+          <button class="r300-btn r300-btn-sm" data-sprint="debriefs" data-delta="1">+</button>
+        </div>
+      </div>
+
+      <div class="r300-sprint-row">
+        <div class="r300-sprint-info">
+          <span class="r300-sprint-name">Free Experiments</span>
+          <span class="r300-sprint-vals"><span id="r300S_experiments">0</span> / 3</span>
+          <span class="r300-sprint-pct" id="r300S_experimentsPct">0%</span>
+        </div>
+        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_experimentsBar" style="width:0%"></div></div>
+        <div class="r300-sprint-stepper">
+          <button class="r300-btn r300-btn-sm" data-sprint="experiments" data-delta="-1">−</button>
+          <span class="r300-sprint-stepval" id="r300S_experimentsCtrl" data-sprint="experiments">0</span>
+          <button class="r300-btn r300-btn-sm" data-sprint="experiments" data-delta="1">+</button>
+        </div>
+      </div>
+
+      <div class="r300-sprint-row">
+        <div class="r300-sprint-info">
+          <span class="r300-sprint-name">Case Studies</span>
+          <span class="r300-sprint-vals"><span id="r300S_caseStudies">0</span> / 3</span>
+          <span class="r300-sprint-pct" id="r300S_caseStudiesPct">0%</span>
+        </div>
+        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_caseStudiesBar" style="width:0%"></div></div>
+        <div class="r300-sprint-stepper">
+          <button class="r300-btn r300-btn-sm" data-sprint="caseStudies" data-delta="-1">−</button>
+          <span class="r300-sprint-stepval" id="r300S_caseStudiesCtrl" data-sprint="caseStudies">0</span>
+          <button class="r300-btn r300-btn-sm" data-sprint="caseStudies" data-delta="1">+</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -606,7 +967,9 @@
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (!k) continue;
-      if (k.startsWith('goals:') || k === 'goal_streak_v1') {
+      if (k.startsWith('goals:') || k === 'goal_streak_v1' ||
+          k.startsWith('r300:') || k === 'r300_streak' || k === 'r300_90day' ||
+          k === 'planning_other') {
         try { out[k] = JSON.parse(localStorage.getItem(k)); } catch {}
       }
     }
@@ -645,18 +1008,22 @@
     // the next write, resurrecting deleted/rolled-over tasks everywhere.
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
-      if (k && k.startsWith('goals:') && !(k in data)) {
+      if (k && (k.startsWith('goals:') || k.startsWith('r300:')) && !(k in data)) {
         localStorage.removeItem(k);
       }
     }
     Object.entries(data).forEach(([k, v]) => {
-      if (k.startsWith('goals:') || k === 'goal_streak_v1') {
+      if (k.startsWith('goals:') || k === 'goal_streak_v1' ||
+          k.startsWith('r300:') || k === 'r300_streak' || k === 'r300_90day' ||
+          k === 'planning_other') {
         localStorage.setItem(k, JSON.stringify(v));
       }
     });
     loadToday();
     loadTomorrow();
     renderStreak();
+    renderR300Daily();
+    renderR300Sprint();
   }
 
   async function _pullFromSupabase() {
@@ -775,6 +1142,7 @@
     setTimeout(() => {
       doRollover();
       doStreakCheck();
+      doR300StreakCheck();
       loadToday();
       loadTomorrow();
       renderStreak();
@@ -1159,6 +1527,262 @@
     loadTomorrow();
   });
 
+  // ── Rule of 300 ──
+  const R300_DAILY_TARGETS  = { content: 100, outreach: 100, comments: 100 };
+  const R300_SPRINT_TARGETS = {
+    content: 9000, outreach: 9000, comments: 9000,
+    scorecards: 30, debriefs: 15, experiments: 3, caseStudies: 3
+  };
+
+  function getR300Today() {
+    return storeGet('r300:' + getActiveDateString()) || { content: 0, outreach: 0, comments: 0 };
+  }
+
+  function setR300Today(vals) { storeSet('r300:' + getActiveDateString(), vals); }
+
+  function getR300Sprint() {
+    return storeGet('r300_90day') || { scorecards: 0, debriefs: 0, experiments: 0, caseStudies: 0 };
+  }
+
+  function setR300Sprint(vals) { storeSet('r300_90day', vals); }
+
+  function computeR300SprintCumulative() {
+    let content = 0, outreach = 0, comments = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('r300:')) {
+        const v = storeGet(k) || {};
+        content  += v.content  || 0;
+        outreach += v.outreach || 0;
+        comments += v.comments || 0;
+      }
+    }
+    return { content, outreach, comments };
+  }
+
+  function doR300StreakCheck() {
+    const today = getActiveDateString();
+    let streak = storeGet('r300_streak') || { count: 0, lastProcessedDate: null };
+    const pastDates = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('r300:')) {
+        const d = k.replace('r300:', '');
+        if (d < today) pastDates.push(d);
+      }
+    }
+    pastDates.sort();
+    const toProcess = streak.lastProcessedDate
+      ? pastDates.filter(d => d > streak.lastProcessedDate)
+      : pastDates;
+
+    for (const date of toProcess) {
+      if (streak.lastProcessedDate) {
+        const prev = new Date(streak.lastProcessedDate + 'T00:00:00');
+        prev.setDate(prev.getDate() + 1);
+        if (date !== _localDateStr(prev)) streak.count = 0;
+      }
+      const vals = storeGet('r300:' + date) || {};
+      const complete = (vals.content || 0) >= 100 &&
+                       (vals.outreach || 0) >= 100 &&
+                       (vals.comments || 0) >= 100;
+      streak.count = complete ? streak.count + 1 : 0;
+      streak.lastProcessedDate = date;
+    }
+    storeSet('r300_streak', streak);
+    return streak.count;
+  }
+
+  function _r300SetBar(barEl, value, target) {
+    if (!barEl) return;
+    const pct = Math.min(value / target, 1) * 100;
+    barEl.style.width = pct + '%';
+    if (pct >= 100) barEl.classList.add('is-done');
+    else barEl.classList.remove('is-done');
+  }
+
+  function renderR300Daily() {
+    const vals = getR300Today();
+    const pcts = {};
+    ['content', 'outreach', 'comments'].forEach(f => {
+      const v   = vals[f] || 0;
+      const t   = R300_DAILY_TARGETS[f];
+      const pct = Math.min(v / t, 1) * 100;
+      pcts[f] = pct;
+      const cap = f.charAt(0).toUpperCase() + f.slice(1);
+      const valEl = document.getElementById('r300Val' + cap);
+      const pctEl = document.getElementById('r300Pct' + cap);
+      const barEl = document.getElementById('r300Bar' + cap);
+      const rowEl = document.getElementById('r300Row' + cap);
+      if (valEl && !valEl.querySelector('input')) valEl.textContent = v;
+      if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+      _r300SetBar(barEl, v, t);
+      if (rowEl) {
+        if (pct >= 100) rowEl.classList.add('r300-row-done');
+        else rowEl.classList.remove('r300-row-done');
+      }
+    });
+
+    const overall = (pcts.content + pcts.outreach + pcts.comments) / 3;
+    const overallEl = document.getElementById('r300OverallPct');
+    if (overallEl) {
+      overallEl.textContent = Math.round(overall) + '%';
+      if (overall >= 100) overallEl.classList.add('is-done');
+      else overallEl.classList.remove('is-done');
+    }
+
+    const streak = storeGet('r300_streak') || { count: 0 };
+    const numEl  = document.getElementById('r300StreakNum');
+    const pillEl = document.getElementById('r300StreakPill');
+    if (numEl) numEl.textContent = streak.count;
+    if (pillEl) {
+      if (streak.count > 0) pillEl.classList.add('is-active');
+      else pillEl.classList.remove('is-active');
+    }
+  }
+
+  function renderR300Sprint() {
+    const cum    = computeR300SprintCumulative();
+    const manual = getR300Sprint();
+    const t      = R300_SPRINT_TARGETS;
+
+    [['content', cum.content], ['outreach', cum.outreach], ['comments', cum.comments]].forEach(([key, val]) => {
+      const pct = Math.min(val / t[key], 1) * 100;
+      const vEl = document.getElementById('r300S_' + key);
+      const pEl = document.getElementById('r300S_' + key + 'Pct');
+      const bEl = document.getElementById('r300S_' + key + 'Bar');
+      if (vEl) vEl.textContent = val.toLocaleString();
+      if (pEl) pEl.textContent = Math.round(pct) + '%';
+      _r300SetBar(bEl, val, t[key]);
+    });
+
+    ['scorecards', 'debriefs', 'experiments', 'caseStudies'].forEach(key => {
+      const val = manual[key] || 0;
+      const pct = Math.min(val / t[key], 1) * 100;
+      const vEl = document.getElementById('r300S_' + key);
+      const pEl = document.getElementById('r300S_' + key + 'Pct');
+      const bEl = document.getElementById('r300S_' + key + 'Bar');
+      const cEl = document.getElementById('r300S_' + key + 'Ctrl');
+      if (vEl) vEl.textContent = val;
+      if (pEl) pEl.textContent = Math.round(pct) + '%';
+      _r300SetBar(bEl, val, t[key]);
+      if (cEl && !cEl.querySelector('input')) cEl.textContent = val;
+    });
+  }
+
+  function makeR300DailyEditable(spanEl, field) {
+    spanEl.addEventListener('click', () => {
+      if (spanEl.querySelector('input')) return;
+      const current = parseInt(spanEl.textContent) || 0;
+      const input   = document.createElement('input');
+      input.type    = 'number';
+      input.min     = '0';
+      input.value   = current;
+      input.className = 'r300-val-input';
+      spanEl.textContent = '';
+      spanEl.appendChild(input);
+      input.focus();
+      input.select();
+      function commit() {
+        const v    = Math.max(0, parseInt(input.value) || 0);
+        const vals = getR300Today();
+        vals[field] = v;
+        setR300Today(vals);
+        if (spanEl.contains(input)) spanEl.removeChild(input);
+        spanEl.textContent = v;
+        renderR300Daily();
+        renderR300Sprint();
+      }
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') {
+          if (spanEl.contains(input)) spanEl.removeChild(input);
+          spanEl.textContent = current;
+        }
+      });
+    });
+  }
+
+  function makeR300SprintEditable(spanEl, field) {
+    spanEl.addEventListener('click', () => {
+      if (spanEl.querySelector('input')) return;
+      const current = parseInt(spanEl.textContent) || 0;
+      const input   = document.createElement('input');
+      input.type    = 'number';
+      input.min     = '0';
+      input.value   = current;
+      input.className = 'r300-val-input r300-val-input-sm';
+      spanEl.textContent = '';
+      spanEl.appendChild(input);
+      input.focus();
+      input.select();
+      function commit() {
+        const v      = Math.max(0, parseInt(input.value) || 0);
+        const sprint = getR300Sprint();
+        sprint[field] = v;
+        setR300Sprint(sprint);
+        if (spanEl.contains(input)) spanEl.removeChild(input);
+        spanEl.textContent = v;
+        renderR300Sprint();
+      }
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') {
+          if (spanEl.contains(input)) spanEl.removeChild(input);
+          spanEl.textContent = current;
+        }
+      });
+    });
+  }
+
+  function initR300() {
+    document.getElementById('r300DateLabel').textContent =
+      'Daily Scorecard — ' + formatDate(getActiveDateString());
+
+    doR300StreakCheck();
+    renderR300Daily();
+    renderR300Sprint();
+
+    // Daily stepper buttons (data-field + data-delta)
+    document.querySelectorAll('[data-field][data-delta]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const field  = btn.dataset.field;
+        const delta  = parseInt(btn.dataset.delta);
+        const vals   = getR300Today();
+        vals[field]  = Math.max(0, (vals[field] || 0) + delta);
+        setR300Today(vals);
+        renderR300Daily();
+        renderR300Sprint();
+      });
+    });
+
+    // Daily value click-to-type
+    ['Content', 'Outreach', 'Comments'].forEach(name => {
+      const el = document.getElementById('r300Val' + name);
+      if (el) makeR300DailyEditable(el, name.toLowerCase());
+    });
+
+    // Sprint stepper buttons (data-sprint + data-delta)
+    document.querySelectorAll('[data-sprint][data-delta]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const field   = btn.dataset.sprint;
+        const delta   = parseInt(btn.dataset.delta);
+        const sprint  = getR300Sprint();
+        sprint[field] = Math.max(0, (sprint[field] || 0) + delta);
+        setR300Sprint(sprint);
+        renderR300Sprint();
+      });
+    });
+
+    // Sprint manual value click-to-type
+    ['scorecards', 'debriefs', 'experiments', 'caseStudies'].forEach(field => {
+      const el = document.getElementById('r300S_' + field + 'Ctrl');
+      if (el) makeR300SprintEditable(el, field);
+    });
+  }
+
   // ── Init ──
   function initDashboard() {
     document.getElementById('todayLabel').textContent = `Today — ${formatDate(getActiveDateString())}`;
@@ -1180,6 +1804,7 @@
     loadToday();
     renderStreak();
     initQuoteCard();
+    initR300();
     scheduleMidnightRollover();
   }
 

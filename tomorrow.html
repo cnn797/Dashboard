@@ -465,7 +465,8 @@
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (!k) continue;
-      if (k.startsWith('goals:') || k === 'goal_streak_v1' || k === 'planning_other') {
+      if (k.startsWith('goals:') || k === 'goal_streak_v1' || k === 'planning_other' ||
+          k.startsWith('r300:') || k === 'r300_streak' || k === 'r300_90day') {
         try { out[k] = JSON.parse(localStorage.getItem(k)); } catch {}
       }
     }
@@ -501,12 +502,13 @@
     if (!data) return;
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
-      if (k && k.startsWith('goals:') && !(k in data)) {
+      if (k && (k.startsWith('goals:') || k.startsWith('r300:')) && !(k in data)) {
         localStorage.removeItem(k);
       }
     }
     Object.entries(data).forEach(([k, v]) => {
-      if (k.startsWith('goals:') || k === 'goal_streak_v1' || k === 'planning_other') {
+      if (k.startsWith('goals:') || k === 'goal_streak_v1' || k === 'planning_other' ||
+          k.startsWith('r300:') || k === 'r300_streak' || k === 'r300_90day') {
         localStorage.setItem(k, JSON.stringify(v));
       }
     });
