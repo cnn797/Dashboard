@@ -466,7 +466,7 @@
       const k = localStorage.key(i);
       if (!k) continue;
       if (k.startsWith('goals:') || k === 'goal_streak_v1' || k === 'planning_other' ||
-          k.startsWith('r300:') || k === 'r300_streak' || k === 'r300_90day') {
+          k.startsWith('r300:') || k === 'r300_streak') {
         try { out[k] = JSON.parse(localStorage.getItem(k)); } catch {}
       }
     }
@@ -508,7 +508,7 @@
     }
     Object.entries(data).forEach(([k, v]) => {
       if (k.startsWith('goals:') || k === 'goal_streak_v1' || k === 'planning_other' ||
-          k.startsWith('r300:') || k === 'r300_streak' || k === 'r300_90day') {
+          k.startsWith('r300:') || k === 'r300_streak') {
         localStorage.setItem(k, JSON.stringify(v));
       }
     });

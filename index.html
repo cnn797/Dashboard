@@ -840,64 +840,7 @@
         <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_commentsBar" style="width:0%"></div></div>
       </div>
 
-      <div class="r300-sprint-divider"></div>
-
-      <div class="r300-sprint-row">
-        <div class="r300-sprint-info">
-          <span class="r300-sprint-name">Scorecard Completions</span>
-          <span class="r300-sprint-vals"><span id="r300S_scorecards">0</span> / 30</span>
-          <span class="r300-sprint-pct" id="r300S_scorecardsPct">0%</span>
-        </div>
-        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_scorecardsBar" style="width:0%"></div></div>
-        <div class="r300-sprint-stepper">
-          <button class="r300-btn r300-btn-sm" data-sprint="scorecards" data-delta="-1">−</button>
-          <span class="r300-sprint-stepval" id="r300S_scorecardsCtrl" data-sprint="scorecards">0</span>
-          <button class="r300-btn r300-btn-sm" data-sprint="scorecards" data-delta="1">+</button>
-        </div>
-      </div>
-
-      <div class="r300-sprint-row">
-        <div class="r300-sprint-info">
-          <span class="r300-sprint-name">Founder Debriefs</span>
-          <span class="r300-sprint-vals"><span id="r300S_debriefs">0</span> / 15</span>
-          <span class="r300-sprint-pct" id="r300S_debriefsPct">0%</span>
-        </div>
-        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_debriefsBar" style="width:0%"></div></div>
-        <div class="r300-sprint-stepper">
-          <button class="r300-btn r300-btn-sm" data-sprint="debriefs" data-delta="-1">−</button>
-          <span class="r300-sprint-stepval" id="r300S_debriefsCtrl" data-sprint="debriefs">0</span>
-          <button class="r300-btn r300-btn-sm" data-sprint="debriefs" data-delta="1">+</button>
-        </div>
-      </div>
-
-      <div class="r300-sprint-row">
-        <div class="r300-sprint-info">
-          <span class="r300-sprint-name">Free Experiments</span>
-          <span class="r300-sprint-vals"><span id="r300S_experiments">0</span> / 3</span>
-          <span class="r300-sprint-pct" id="r300S_experimentsPct">0%</span>
-        </div>
-        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_experimentsBar" style="width:0%"></div></div>
-        <div class="r300-sprint-stepper">
-          <button class="r300-btn r300-btn-sm" data-sprint="experiments" data-delta="-1">−</button>
-          <span class="r300-sprint-stepval" id="r300S_experimentsCtrl" data-sprint="experiments">0</span>
-          <button class="r300-btn r300-btn-sm" data-sprint="experiments" data-delta="1">+</button>
-        </div>
-      </div>
-
-      <div class="r300-sprint-row">
-        <div class="r300-sprint-info">
-          <span class="r300-sprint-name">Case Studies</span>
-          <span class="r300-sprint-vals"><span id="r300S_caseStudies">0</span> / 3</span>
-          <span class="r300-sprint-pct" id="r300S_caseStudiesPct">0%</span>
-        </div>
-        <div class="r300-bar-track r300-bar-thin"><div class="r300-bar-fill" id="r300S_caseStudiesBar" style="width:0%"></div></div>
-        <div class="r300-sprint-stepper">
-          <button class="r300-btn r300-btn-sm" data-sprint="caseStudies" data-delta="-1">−</button>
-          <span class="r300-sprint-stepval" id="r300S_caseStudiesCtrl" data-sprint="caseStudies">0</span>
-          <button class="r300-btn r300-btn-sm" data-sprint="caseStudies" data-delta="1">+</button>
-        </div>
-      </div>
-    </div>
+          </div>
   </div>
 
   <!-- To Do List Section -->
@@ -968,7 +911,7 @@
       const k = localStorage.key(i);
       if (!k) continue;
       if (k.startsWith('goals:') || k === 'goal_streak_v1' ||
-          k.startsWith('r300:') || k === 'r300_streak' || k === 'r300_90day' ||
+          k.startsWith('r300:') || k === 'r300_streak' ||
           k === 'planning_other') {
         try { out[k] = JSON.parse(localStorage.getItem(k)); } catch {}
       }
@@ -1014,7 +957,7 @@
     }
     Object.entries(data).forEach(([k, v]) => {
       if (k.startsWith('goals:') || k === 'goal_streak_v1' ||
-          k.startsWith('r300:') || k === 'r300_streak' || k === 'r300_90day' ||
+          k.startsWith('r300:') || k === 'r300_streak' ||
           k === 'planning_other') {
         localStorage.setItem(k, JSON.stringify(v));
       }
@@ -1529,22 +1472,13 @@
 
   // ── Rule of 300 ──
   const R300_DAILY_TARGETS  = { content: 100, outreach: 100, comments: 100 };
-  const R300_SPRINT_TARGETS = {
-    content: 9000, outreach: 9000, comments: 9000,
-    scorecards: 30, debriefs: 15, experiments: 3, caseStudies: 3
-  };
+  const R300_SPRINT_TARGETS = { content: 9000, outreach: 9000, comments: 9000 };
 
   function getR300Today() {
     return storeGet('r300:' + getActiveDateString()) || { content: 0, outreach: 0, comments: 0 };
   }
 
   function setR300Today(vals) { storeSet('r300:' + getActiveDateString(), vals); }
-
-  function getR300Sprint() {
-    return storeGet('r300_90day') || { scorecards: 0, debriefs: 0, experiments: 0, caseStudies: 0 };
-  }
-
-  function setR300Sprint(vals) { storeSet('r300_90day', vals); }
 
   function computeR300SprintCumulative() {
     let content = 0, outreach = 0, comments = 0;
@@ -1642,10 +1576,8 @@
   }
 
   function renderR300Sprint() {
-    const cum    = computeR300SprintCumulative();
-    const manual = getR300Sprint();
-    const t      = R300_SPRINT_TARGETS;
-
+    const cum = computeR300SprintCumulative();
+    const t   = R300_SPRINT_TARGETS;
     [['content', cum.content], ['outreach', cum.outreach], ['comments', cum.comments]].forEach(([key, val]) => {
       const pct = Math.min(val / t[key], 1) * 100;
       const vEl = document.getElementById('r300S_' + key);
@@ -1654,19 +1586,6 @@
       if (vEl) vEl.textContent = val.toLocaleString();
       if (pEl) pEl.textContent = Math.round(pct) + '%';
       _r300SetBar(bEl, val, t[key]);
-    });
-
-    ['scorecards', 'debriefs', 'experiments', 'caseStudies'].forEach(key => {
-      const val = manual[key] || 0;
-      const pct = Math.min(val / t[key], 1) * 100;
-      const vEl = document.getElementById('r300S_' + key);
-      const pEl = document.getElementById('r300S_' + key + 'Pct');
-      const bEl = document.getElementById('r300S_' + key + 'Bar');
-      const cEl = document.getElementById('r300S_' + key + 'Ctrl');
-      if (vEl) vEl.textContent = val;
-      if (pEl) pEl.textContent = Math.round(pct) + '%';
-      _r300SetBar(bEl, val, t[key]);
-      if (cEl && !cEl.querySelector('input')) cEl.textContent = val;
     });
   }
 
@@ -1691,39 +1610,6 @@
         if (spanEl.contains(input)) spanEl.removeChild(input);
         spanEl.textContent = v;
         renderR300Daily();
-        renderR300Sprint();
-      }
-      input.addEventListener('blur', commit);
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-        if (e.key === 'Escape') {
-          if (spanEl.contains(input)) spanEl.removeChild(input);
-          spanEl.textContent = current;
-        }
-      });
-    });
-  }
-
-  function makeR300SprintEditable(spanEl, field) {
-    spanEl.addEventListener('click', () => {
-      if (spanEl.querySelector('input')) return;
-      const current = parseInt(spanEl.textContent) || 0;
-      const input   = document.createElement('input');
-      input.type    = 'number';
-      input.min     = '0';
-      input.value   = current;
-      input.className = 'r300-val-input r300-val-input-sm';
-      spanEl.textContent = '';
-      spanEl.appendChild(input);
-      input.focus();
-      input.select();
-      function commit() {
-        const v      = Math.max(0, parseInt(input.value) || 0);
-        const sprint = getR300Sprint();
-        sprint[field] = v;
-        setR300Sprint(sprint);
-        if (spanEl.contains(input)) spanEl.removeChild(input);
-        spanEl.textContent = v;
         renderR300Sprint();
       }
       input.addEventListener('blur', commit);
@@ -1764,23 +1650,6 @@
       if (el) makeR300DailyEditable(el, name.toLowerCase());
     });
 
-    // Sprint stepper buttons (data-sprint + data-delta)
-    document.querySelectorAll('[data-sprint][data-delta]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const field   = btn.dataset.sprint;
-        const delta   = parseInt(btn.dataset.delta);
-        const sprint  = getR300Sprint();
-        sprint[field] = Math.max(0, (sprint[field] || 0) + delta);
-        setR300Sprint(sprint);
-        renderR300Sprint();
-      });
-    });
-
-    // Sprint manual value click-to-type
-    ['scorecards', 'debriefs', 'experiments', 'caseStudies'].forEach(field => {
-      const el = document.getElementById('r300S_' + field + 'Ctrl');
-      if (el) makeR300SprintEditable(el, field);
-    });
   }
 
   // ── Init ──
